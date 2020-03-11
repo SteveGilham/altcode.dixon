@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>AltCode.Dixon</AssemblyName>
+    <TargetFramework>net472</TargetFramework>
+    <OutputPath>$(SolutionDir)_Binaries/$(AssemblyName)/$(Configuration)+$(Platform)/</OutputPath>
+    <IntermediateOutputPath>$(SolutionDir)_Intermediate/$(AssemblyName)/$(Configuration)+$(Platform)/</IntermediateOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;$(GlobalDefineConstants)</DefineConstants>
+    <OtherFlags>--tailcalls+ --keyfile:$(SolutionDir)Build\Infrastructure.snk</OtherFlags>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DefineConstants>TRACE;$(GlobalDefineConstants)</DefineConstants>
+    <SolutionDir Condition="'$(SolutionDir)' == '$(ProjectDir)'">$(ProjectDir)../</SolutionDir>
+    <OtherFlags>--keyfile:$(SolutionDir)Build\Infrastructure.snk --standalone</OtherFlags>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <Compile Include="JustifySuppressionRule.fs" />
+    <EmbeddedResource Include="dixon.xml" />
+  </ItemGroup>
+
+  <ItemGroup />
+
+  <ItemGroup>
+    <Reference Include="FxCopSdk">
+      <HintPath>..\packages\fxcop\FxCopSdk.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Cci">
+      <HintPath>..\packages\fxcop\Microsoft.Cci.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.CodeAnalysis">
+      <HintPath>..\packages\fxcop\Microsoft.VisualStudio.CodeAnalysis.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

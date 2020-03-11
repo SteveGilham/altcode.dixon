@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29905.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "altcode.dixon", "altcode.dixon\altcode.dixon.fsproj", "{E03BA4A3-F4DE-4D99-B771-78637706B9F7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildItems", "BuildItems", "{E65D4060-66F4-4A20-9116-8442901F7FB2}"
+	ProjectSection(SolutionItems) = preProject
+		Build\actions.fsx = Build\actions.fsx
+		Build\altcode.dixon.nuspec = Build\altcode.dixon.nuspec
+		Build\build.fsx = Build\build.fsx
+		Build\common-rules.xml = Build\common-rules.xml
+		Build\Infrastructure.snk = Build\Infrastructure.snk
+		Build\setup.fsx = Build\setup.fsx
+		Build\targets.fsx = Build\targets.fsx
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnet-cli", "Build\dotnet-cli.csproj", "{225910EA-70DA-442C-8856-F7D17AC1AF88}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E03BA4A3-F4DE-4D99-B771-78637706B9F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E03BA4A3-F4DE-4D99-B771-78637706B9F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E03BA4A3-F4DE-4D99-B771-78637706B9F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E03BA4A3-F4DE-4D99-B771-78637706B9F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{225910EA-70DA-442C-8856-F7D17AC1AF88} = {E65D4060-66F4-4A20-9116-8442901F7FB2}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {34CA1585-1D7B-4153-98CE-826D630863DC}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Rules FriendlyName="Dixon Rules">
+  <Rule TypeName="JustifySuppression" Category="Dixon.Design" CheckId="DX0001">
+    <Name>Require suppressions to have justification</Name>
+    <Description>If an analysis warning is to be overridden, there should be a reason why.</Description>
+    <Url />
+    <Resolution Name="justificationAbsent">Specify a reason why the code for {0} could not be brought into conformance with the appropriate rule.  Must be > 10 characters.</Resolution>
+    <MessageLevel Certainty="100">Warning</MessageLevel>
+    <Email />
+    <FixCategories>NonBreaking</FixCategories>
+    <Owner />
+  </Rule>
+</Rules>
