@@ -39,8 +39,8 @@ let AltCoverFilter(p : Primitive.PrepareParams) =
   { p with
       //MethodFilter = "WaitForExitCustom" :: (p.MethodFilter |> Seq.toList)
       AssemblyExcludeFilter =
-        @"NUnit3\." :: (@"\.Tests" :: (p.AssemblyExcludeFilter |> Seq.toList))
-      AssemblyFilter = "FSharp" :: @"\.Placeholder" :: (p.AssemblyFilter |> Seq.toList)
+        @"NUnit3\." :: (@"\.tests" :: (p.AssemblyExcludeFilter |> Seq.toList))
+      AssemblyFilter = @"\.testdata" :: (p.AssemblyFilter |> Seq.toList)
       LocalSource = true
       TypeFilter = [ @"System\."; "Microsoft" ] @ (p.TypeFilter |> Seq.toList) }
 
@@ -103,6 +103,16 @@ let toolPackages =
   |> Map.ofSeq
 
 let packageVersion (p : string) = p.ToLowerInvariant() + "/" + (toolPackages.Item p)
+
+let nunitConsole =
+  ("./packages/" + (packageVersion "NUnit.ConsoleRunner") + "/tools/nunit3-console.exe")
+  |> Path.getFullName
+
+let altcover =
+  ("./packages/" + (packageVersion "altcover") + "/tools/net45/AltCover.exe")
+  |> Path.getFullName
+
+let framework_altcover = Fake.DotNet.ToolType.CreateFullFramework()
 
 let misses = ref 0
 
@@ -301,84 +311,79 @@ _Target "UnitTest" (fun _ ->
     |> (sprintf "%d uncovered lines -- coverage too low")
     |> Assert.Fail)
 
-_Target "JustUnitTest" (fun _ -> Directory.ensure "./_Reports"
-  // try
-  //   !!(@"./*Tests/*.fsproj")
-  //   |> Seq.iter
-  //        (DotNet.test (fun p ->
-  //          { p.WithCommon dotnetOptions with
-  //              Configuration = DotNet.BuildConfiguration.Debug
-  //              NoBuild = true }
-  //                  |> withCLIArgs))
-  // with x ->
-  //   printfn "%A" x
-  //   reraise()
-  )
+_Target "JustUnitTest" (fun _ ->
+  Directory.ensure "./_Reports"
+  try
+    !!(@"_Binaries/*tests/Debug+AnyCPU/net4*/*tests.dll")
+    |> NUnit3.run (fun p ->
+         { p with
+             ToolPath = nunitConsole
+             Force32bit = true
+             WorkingDir = "."
+             ResultSpecs = [ "./_Reports/JustUnitTestReport.xml" ] })
+  with x ->
+    printfn "%A" x
+    reraise())
 
-_Target "UnitTestWithAltCover" (fun _ -> ())
-// let reports = Path.getFullName "./_Reports"
-// Directory.ensure reports
-// let report = "./_Reports/_UnitTestWithAltCoverCoreRunner"
-// Directory.ensure report
 
-// let coverage =
-//   !!(@"./**/*.Tests.fsproj")
-//   |> Seq.fold (fun l test ->
-//        printfn "%A" test
-//        let tname = test |> Path.GetFileNameWithoutExtension
+_Target "UnitTestWithAltCover" (fun _ -> 
+  Directory.ensure "./_Reports/_UnitTestWithAltCover"
+  let keyfile = Path.getFullName "Build/SelfTest.snk"
+  let reports = Path.getFullName "./_Reports"
 
-//        let testDirectory =
-//          test
-//          |> Path.getFullName
-//          |> Path.GetDirectoryName
+  let inputs = !!(@"_Binaries/*tests/Debug+AnyCPU/net4*/*tests.dll")
+               |> Seq.toArray
+  let indir = inputs 
+              |> Array.map Path.GetDirectoryName
+  let outdir = indir 
+               |> Array.map (fun d -> d @@ "__UnitTestWithAltCover" )
 
-//        let altReport = reports @@ ("UnitTestWithAltCoverCoreRunner." + tname + ".xml")
-//        let altReport2 = reports @@ ("UnitTestWithAltCoverCoreRunner." + tname + ".xml")
+  let altReport = reports @@ "UnitTestWithAltCover.xml"
+  let prep =
+    AltCover.PrepareParams.Primitive
+      ({ Primitive.PrepareParams.Create() with
+           XmlReport = altReport
+           InputDirectories = indir
+           OutputDirectories = outdir
+           StrongNameKey = keyfile
+           OpenCover = true
+           InPlace = false
+           Save = false }
+       |> AltCoverFilter)
+    |> AltCover.Prepare
+  { AltCover.Params.Create prep with
+      ToolPath = altcover
+      FakeToolType = Some framework_altcover
+      WorkingDirectory = "." }
+  |> AltCover.run
 
-//        let collect = AltCover.CollectParams.Primitive(Primitive.CollectParams.Create()) // FSApi
+  printfn "Unit test the instrumented code"
+  try
+    outdir
+    |> Seq.collect (fun d -> !!(d @@ "*tests.dll"))
+    |> Seq.distinct
+    |> NUnit3.run (fun p ->
+         { p with
+             ToolPath = nunitConsole
+             Force32bit = true
+             WorkingDir = "."
+             ResultSpecs = [ "./_Reports/UnitTestWithAltCoverReport.xml" ] })
+  with x ->
+    printfn "%A" x
+    reraise()
 
-//        let prepare =
-//          AltCover.PrepareParams.Primitive // FSApi
-//            ({ Primitive.PrepareParams.Create() with
-//                 XmlReport = altReport
-//                 Single = true }
-//             |> AltCoverFilter)
+  ReportGenerator.generateReports (fun p ->
+    { p with
+        ToolType = ToolType.CreateLocalTool()
+        ReportTypes =
+          [ ReportGenerator.ReportType.Html; ReportGenerator.ReportType.XmlSummary ]
+        TargetDir = "_Reports/_UnitTestWithAltCover" })
+    [ altReport ]
 
-//        let ForceTrue = DotNet.CLIArgs.Force true
-//        //printfn "Test arguments : '%s'" (DotNet.ToTestArguments prepare collect ForceTrue)
+  uncovered @"_Reports/_UnitTestWithAltCover/Summary.xml"
+  |> printfn "%A uncovered lines"
 
-//        let t =
-//          DotNet.TestOptions.Create().WithAltCoverParameters prepare collect ForceTrue
-//        printfn "WithAltCoverParameters returned '%A'" t.Common.CustomParams
-
-//        let setBaseOptions (o : DotNet.Options) =
-//          { o with
-//              WorkingDirectory = Path.getFullName testDirectory
-//              Verbosity = Some DotNet.Verbosity.Minimal }
-
-//        let cliArguments =
-//                 { MSBuild.CliArguments.Create() with
-//                     ConsoleLogParameters = []
-//                     DistributedLoggers = None
-//                     DisableInternalBinLog = true }
-
-//        try
-//          DotNet.test (fun to' ->
-//            { to'.WithCommon(setBaseOptions).WithAltCoverParameters prepare collect
-//                ForceTrue with MSBuildParams = cliArguments }) test
-//        with x -> printfn "%A" x
-//        altReport2 :: l) []
-// ReportGenerator.generateReports (fun p ->
-//   { p with
-//       ToolType = ToolType.CreateLocalTool()
-//       ReportTypes =
-//         [ ReportGenerator.ReportType.Html; ReportGenerator.ReportType.XmlSummary ]
-//       TargetDir = report }) coverage
-
-// (report @@ "Summary.xml")
-// |> uncovered
-// |> printfn "%A uncovered lines"  )
-
+)
 // Pure OperationalTests
 
 _Target "OperationalTest" ignore

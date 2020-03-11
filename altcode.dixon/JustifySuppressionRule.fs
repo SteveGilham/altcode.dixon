@@ -45,7 +45,7 @@ type JustifySuppressionRule =
       match attribute.GetNamedArgument(Identifier.For("Justification")) with
       | :? Literal as lit ->
           match lit.Value :?> string with
-          | y when String.IsNullOrEmpty(y) -> self.Violation context
+          | y when String.IsNullOrWhiteSpace(y) -> self.Violation context
           | x when x.Trim().Length < 10 -> self.Violation context
           | _ -> ()
 

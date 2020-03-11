@@ -30,6 +30,7 @@
     </Reference>
     <Reference Include="Microsoft.Cci">
       <HintPath>..\packages\fxcop\Microsoft.Cci.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.CodeAnalysis">
       <HintPath>..\packages\fxcop\Microsoft.VisualStudio.CodeAnalysis.dll</HintPath>

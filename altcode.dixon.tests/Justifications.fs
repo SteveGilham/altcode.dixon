@@ -32,6 +32,20 @@ module Justifications =
     Assert.That(problem.Name, Is.EqualTo("justificationAbsent"))
 
   [<Test>]
+  let BlankJustificationTest() =
+    let subject = new AltCode.Dixon.TestData.Justifications()
+    let subjectNode = Utilities.GetType subject
+
+    let offendingMethod = Utilities.GetMethod subjectNode "EmptyToken"
+
+    let ruleUnderTest = new JustifySuppressionRule()
+    let problems = ruleUnderTest.Check(offendingMethod)
+
+    Assert.That(problems.Count, Is.EqualTo(1))
+    let problem = problems.[0].Resolution
+    Assert.That(problem.Name, Is.EqualTo("justificationAbsent"))
+
+  [<Test>]
   let ShortJustificationTest() =
     let subject = new AltCode.Dixon.TestData.Justifications()
     let subjectNode = Utilities.GetType subject
@@ -66,5 +80,22 @@ module Justifications =
 
     let ruleUnderTest = new JustifySuppressionRule()
     let problems = ruleUnderTest.Check(offendingMethod)
+
+    Assert.That(problems.Count, Is.EqualTo(0))
+
+  [<Test>]
+  let NoSuppressionTypeTest() =
+    let subject = new AltCode.Dixon.TestData.Justifications()
+    let subjectNode = Utilities.GetType subject
+
+    let ruleUnderTest = new JustifySuppressionRule()
+    let problems = ruleUnderTest.Check(subjectNode)
+    Assert.That(problems.Count, Is.EqualTo(0))
+    let problems = ruleUnderTest.Check(subjectNode.DeclaringModule)
+    Assert.That(problems.Count, Is.EqualTo(0))
+
+    let offendingMethod = Utilities.GetMethod subjectNode "Token4"
+    let problems = ruleUnderTest.Check((offendingMethod :?> Method).Parameters
+                                       |> Seq.head)
 
     Assert.That(problems.Count, Is.EqualTo(0))

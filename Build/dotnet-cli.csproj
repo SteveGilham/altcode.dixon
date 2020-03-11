@@ -15,5 +15,6 @@
     </PackageReference>
     <PackageReference Include="altcode.gendarme" version="2020.3.9.15370-pre-release" />
     <PackageReference Include="altcover" version="6.7.750" />
+    <PackageReference Include="NUnit.ConsoleRunner" version="3.11.1" />
   </ItemGroup>
 </Project>

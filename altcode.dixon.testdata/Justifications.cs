@@ -21,6 +21,18 @@ namespace AltCode.Dixon.TestData
     /// </summary>
     /// <returns>A constant string</returns>
     [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic",
+      Justification = "  ")]
+    public string EmptyToken()
+    {
+      return "Canary";
+    }
+
+    /// <summary>
+    /// Used in a unit test -- should be covered
+    /// Should generate a "No Justification given" FxCop message
+    /// </summary>
+    /// <returns>A constant string</returns>
+    [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic",
       Justification = "Shan't")]
     public string AnotherToken()
     {
@@ -43,9 +55,9 @@ namespace AltCode.Dixon.TestData
     /// </summary>
     /// <returns>A constant string</returns>
     [ExcludeFromCodeCoverage]
-    public string Token4()
+    public string Token4(int x)
     {
-      return "Canary";
+      return "Canary" + x.ToString();
     }
   }
 }
