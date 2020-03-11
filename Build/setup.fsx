@@ -47,24 +47,21 @@ let toolPackages =
   xml.Descendants(XName.Get("PackageReference"))
   |> Seq.map
        (fun x ->
-       (x.Attribute(XName.Get("Include")).Value, x.Attribute(XName.Get("version")).Value))
+         (x.Attribute(XName.Get("Include")).Value, x.Attribute(XName.Get("version")).Value))
   |> Map.ofSeq
 
-let packageVersion (p: string) = p.ToLowerInvariant() + "/" + (toolPackages.Item p)
+let packageVersion (p : string) = p.ToLowerInvariant() + "/" + (toolPackages.Item p)
 
 let nuget =
   ("./packages/" + (packageVersion "NuGet.CommandLine") + "/tools/NuGet.exe")
   |> Path.getFullName
 
-let restore (o : RestorePackageParams) =
-  { o with ToolPath = nuget }
+let restore (o : RestorePackageParams) = { o with ToolPath = nuget }
 
 let fxcop =
   BlackFox.VsWhere.VsInstances.getAll()
   |> Seq.filter (fun i -> System.Version(i.InstallationVersion).Major = 16)
-  |> Seq.map
-       (fun i ->
-       i.InstallationPath @@ "Team Tools/Static Analysis Tools/FxCop")
+  |> Seq.map (fun i -> i.InstallationPath @@ "Team Tools/Static Analysis Tools/FxCop")
   |> Seq.filter Directory.Exists
   |> Seq.head
 
@@ -124,17 +121,17 @@ _Target "Preparation" (fun _ ->
   Directory.ensure "./packages/fxcop/"
   let target = Path.getFullName "./packages/fxcop/"
   let prefix = fxcop.Length
-  let check (f : string) = 
-    let destination = target @@ (f.Substring prefix)
-    destination |> File.Exists |> not
 
-  Shell.copyDir target fxcop check
-)
+  let check (f : string) =
+    let destination = target @@ (f.Substring prefix)
+    destination
+    |> File.Exists
+    |> not
+
+  Shell.copyDir target fxcop check)
 
 let defaultTarget() =
   resetColours()
   "Preparation"
 
-Target.runOrDefault <| defaultTarget ()
-
-
+Target.runOrDefault <| defaultTarget()

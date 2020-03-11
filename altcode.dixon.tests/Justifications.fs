@@ -5,24 +5,21 @@ open NUnit.Framework
 open AltCode.Dixon.Design
 
 module Utilities =
-  let GetType (o:obj) =
+  let GetType(o : obj) =
     let t = o.GetType()
     let assembly = AssemblyNode.GetAssembly(t.Module.Assembly.Location)
-    assembly.GetType(Identifier.For(t.Namespace),
-                     Identifier.For(t.Name))
+    assembly.GetType(Identifier.For(t.Namespace), Identifier.For(t.Name))
 
-  let GetMethod (t:TypeNode) (name:string) =
-    t.Members
-    |> Seq.find (fun x -> x.Name.Name = name)
+  let GetMethod (t : TypeNode) (name : string) =
+    t.Members |> Seq.find (fun x -> x.Name.Name = name)
 
 module Justifications =
   [<SetUp>]
-  let Setup () =
-      ()
+  let Setup() = ()
 
   [<Test>]
   let NoJustificationTest() =
-    let subject = new AltCode.Dixon.TestData.Justifications();
+    let subject = new AltCode.Dixon.TestData.Justifications()
     let subjectNode = Utilities.GetType subject
 
     let offendingMethod = Utilities.GetMethod subjectNode "Token"
@@ -36,7 +33,7 @@ module Justifications =
 
   [<Test>]
   let ShortJustificationTest() =
-    let subject = new AltCode.Dixon.TestData.Justifications();
+    let subject = new AltCode.Dixon.TestData.Justifications()
     let subjectNode = Utilities.GetType subject
 
     let offendingMethod = Utilities.GetMethod subjectNode "AnotherToken"
@@ -50,7 +47,7 @@ module Justifications =
 
   [<Test>]
   let EnoughJustificationTest() =
-    let subject = new AltCode.Dixon.TestData.Justifications();
+    let subject = new AltCode.Dixon.TestData.Justifications()
     let subjectNode = Utilities.GetType subject
 
     let offendingMethod = Utilities.GetMethod subjectNode "YetAnotherToken"
@@ -62,7 +59,7 @@ module Justifications =
 
   [<Test>]
   let NoSuppressionTest() =
-    let subject = new AltCode.Dixon.TestData.Justifications();
+    let subject = new AltCode.Dixon.TestData.Justifications()
     let subjectNode = Utilities.GetType subject
 
     let offendingMethod = Utilities.GetMethod subjectNode "Token4"

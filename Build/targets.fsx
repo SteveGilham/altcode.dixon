@@ -234,24 +234,24 @@ _Target "Lint" (fun _ ->
   |> Seq.collect (fun n -> !!(Path.GetDirectoryName n @@ "*.fs"))
   |> Seq.distinct
   |> Seq.map (fun f ->
-        match Lint.lintFile options f with
-          | Lint.LintResult.Failure x -> failwithf "%A" x
-          | Lint.LintResult.Success w -> w)
+       match Lint.lintFile options f with
+       | Lint.LintResult.Failure x -> failwithf "%A" x
+       | Lint.LintResult.Success w -> w)
   |> Seq.concat
   |> Seq.fold (fun _ x ->
-      printfn "Info: %A\r\n Range: %A\r\n Fix: %A\r\n====" x.Details.Message
-        x.Details.Range x.Details.SuggestedFix
-      true) false
+       printfn "Info: %A\r\n Range: %A\r\n Fix: %A\r\n====" x.Details.Message
+         x.Details.Range x.Details.SuggestedFix
+       true) false
   |> failOnIssuesFound)
 
 _Target "Gendarme" (fun _ -> // Needs debug because release is compiled --standalone which contaminates everything
+
 
   Directory.ensure "./_Reports"
 
   let rules = Path.getFullName "./Build/common-rules.xml"
 
-  [ (rules,
-     [ "_Binaries/AltCode.Dixon/Debug+AnyCPU/net472/AltCode.Dixon.dll" ]) ]
+  [ (rules, [ "_Binaries/AltCode.Dixon/Debug+AnyCPU/net472/AltCode.Dixon.dll" ]) ]
   |> Seq.iter (fun (ruleset, files) ->
        Gendarme.run
          { Gendarme.Params.Create() with
@@ -265,20 +265,18 @@ _Target "Gendarme" (fun _ -> // Needs debug because release is compiled --standa
              Targets = files }))
 
 _Target "FxCop" (fun _ -> // Needs debug because release is compiled --standalone which contaminates everything
+
   let nonFsharpRules =
-    [
-      "-Microsoft.Design#CA1006" // nested generics
+    [ "-Microsoft.Design#CA1006" // nested generics
       "-Microsoft.Design#CA1034" // nested classes being visible
       "-Microsoft.Design#CA1062" // null checks,  In F#!
       "-Microsoft.Naming#CA1709" // defer to the Gendarme casing rule for implicit 'a
       "-Microsoft.Naming#CA1715" // defer to the Gendarme naming rule for implicit 'a
-      "-Microsoft.Usage#CA2235"  // closures being serializable
-    ]
+      "-Microsoft.Usage#CA2235" ]
 
   Directory.ensure "./_Reports"
   [ ([ Path.getFullName "_Binaries/AltCode.Dixon/Debug+AnyCPU/net472/AltCode.Dixon.dll" ],
-     [],
-     nonFsharpRules) ]
+     [], nonFsharpRules) ]
   |> Seq.iter (fun (files, types, ruleset) ->
        files
        |> FxCop.run
@@ -303,8 +301,7 @@ _Target "UnitTest" (fun _ ->
     |> (sprintf "%d uncovered lines -- coverage too low")
     |> Assert.Fail)
 
-_Target "JustUnitTest" (fun _ ->
-  Directory.ensure "./_Reports"
+_Target "JustUnitTest" (fun _ -> Directory.ensure "./_Reports"
   // try
   //   !!(@"./*Tests/*.fsproj")
   //   |> Seq.iter
@@ -318,70 +315,69 @@ _Target "JustUnitTest" (fun _ ->
   //   reraise()
   )
 
-_Target "UnitTestWithAltCover" (fun _ ->
-  ())
-  // let reports = Path.getFullName "./_Reports"
-  // Directory.ensure reports
-  // let report = "./_Reports/_UnitTestWithAltCoverCoreRunner"
-  // Directory.ensure report
+_Target "UnitTestWithAltCover" (fun _ -> ())
+// let reports = Path.getFullName "./_Reports"
+// Directory.ensure reports
+// let report = "./_Reports/_UnitTestWithAltCoverCoreRunner"
+// Directory.ensure report
 
-  // let coverage =
-  //   !!(@"./**/*.Tests.fsproj")
-  //   |> Seq.fold (fun l test ->
-  //        printfn "%A" test
-  //        let tname = test |> Path.GetFileNameWithoutExtension
+// let coverage =
+//   !!(@"./**/*.Tests.fsproj")
+//   |> Seq.fold (fun l test ->
+//        printfn "%A" test
+//        let tname = test |> Path.GetFileNameWithoutExtension
 
-  //        let testDirectory =
-  //          test
-  //          |> Path.getFullName
-  //          |> Path.GetDirectoryName
+//        let testDirectory =
+//          test
+//          |> Path.getFullName
+//          |> Path.GetDirectoryName
 
-  //        let altReport = reports @@ ("UnitTestWithAltCoverCoreRunner." + tname + ".xml")
-  //        let altReport2 = reports @@ ("UnitTestWithAltCoverCoreRunner." + tname + ".xml")
+//        let altReport = reports @@ ("UnitTestWithAltCoverCoreRunner." + tname + ".xml")
+//        let altReport2 = reports @@ ("UnitTestWithAltCoverCoreRunner." + tname + ".xml")
 
-  //        let collect = AltCover.CollectParams.Primitive(Primitive.CollectParams.Create()) // FSApi
+//        let collect = AltCover.CollectParams.Primitive(Primitive.CollectParams.Create()) // FSApi
 
-  //        let prepare =
-  //          AltCover.PrepareParams.Primitive // FSApi
-  //            ({ Primitive.PrepareParams.Create() with
-  //                 XmlReport = altReport
-  //                 Single = true }
-  //             |> AltCoverFilter)
+//        let prepare =
+//          AltCover.PrepareParams.Primitive // FSApi
+//            ({ Primitive.PrepareParams.Create() with
+//                 XmlReport = altReport
+//                 Single = true }
+//             |> AltCoverFilter)
 
-  //        let ForceTrue = DotNet.CLIArgs.Force true
-  //        //printfn "Test arguments : '%s'" (DotNet.ToTestArguments prepare collect ForceTrue)
+//        let ForceTrue = DotNet.CLIArgs.Force true
+//        //printfn "Test arguments : '%s'" (DotNet.ToTestArguments prepare collect ForceTrue)
 
-  //        let t =
-  //          DotNet.TestOptions.Create().WithAltCoverParameters prepare collect ForceTrue
-  //        printfn "WithAltCoverParameters returned '%A'" t.Common.CustomParams
+//        let t =
+//          DotNet.TestOptions.Create().WithAltCoverParameters prepare collect ForceTrue
+//        printfn "WithAltCoverParameters returned '%A'" t.Common.CustomParams
 
-  //        let setBaseOptions (o : DotNet.Options) =
-  //          { o with
-  //              WorkingDirectory = Path.getFullName testDirectory
-  //              Verbosity = Some DotNet.Verbosity.Minimal }
+//        let setBaseOptions (o : DotNet.Options) =
+//          { o with
+//              WorkingDirectory = Path.getFullName testDirectory
+//              Verbosity = Some DotNet.Verbosity.Minimal }
 
-  //        let cliArguments =
-  //                 { MSBuild.CliArguments.Create() with
-  //                     ConsoleLogParameters = []
-  //                     DistributedLoggers = None
-  //                     DisableInternalBinLog = true }
+//        let cliArguments =
+//                 { MSBuild.CliArguments.Create() with
+//                     ConsoleLogParameters = []
+//                     DistributedLoggers = None
+//                     DisableInternalBinLog = true }
 
-  //        try
-  //          DotNet.test (fun to' ->
-  //            { to'.WithCommon(setBaseOptions).WithAltCoverParameters prepare collect
-  //                ForceTrue with MSBuildParams = cliArguments }) test
-  //        with x -> printfn "%A" x
-  //        altReport2 :: l) []
-  // ReportGenerator.generateReports (fun p ->
-  //   { p with
-  //       ToolType = ToolType.CreateLocalTool()
-  //       ReportTypes =
-  //         [ ReportGenerator.ReportType.Html; ReportGenerator.ReportType.XmlSummary ]
-  //       TargetDir = report }) coverage
+//        try
+//          DotNet.test (fun to' ->
+//            { to'.WithCommon(setBaseOptions).WithAltCoverParameters prepare collect
+//                ForceTrue with MSBuildParams = cliArguments }) test
+//        with x -> printfn "%A" x
+//        altReport2 :: l) []
+// ReportGenerator.generateReports (fun p ->
+//   { p with
+//       ToolType = ToolType.CreateLocalTool()
+//       ReportTypes =
+//         [ ReportGenerator.ReportType.Html; ReportGenerator.ReportType.XmlSummary ]
+//       TargetDir = report }) coverage
 
-  // (report @@ "Summary.xml")
-  // |> uncovered
-  // |> printfn "%A uncovered lines"  )
+// (report @@ "Summary.xml")
+// |> uncovered
+// |> printfn "%A uncovered lines"  )
 
 // Pure OperationalTests
 
@@ -390,8 +386,7 @@ _Target "OperationalTest" ignore
 // Packaging
 
 _Target "Packaging" (fun _ ->
-  let productDir =
-    Path.getFullName "_Binaries/AltCode.Dixon/Release+AnyCPU/net472"
+  let productDir = Path.getFullName "_Binaries/AltCode.Dixon/Release+AnyCPU/net472"
   let packable = Path.getFullName "./_Binaries/README.html"
 
   let productFiles =
@@ -401,10 +396,8 @@ _Target "Packaging" (fun _ ->
       (Path.getFullName "./Dixon_128.*g", Some "", None)
       (packable, Some "", None) ]
 
-  [ (productFiles, "_Packaging",
-     "./Build/altcode.dixon.nuspec", "AltCode.Dixon",
-     "FxCop extensions",
-     []) ]
+  [ (productFiles, "_Packaging", "./Build/altcode.dixon.nuspec", "AltCode.Dixon",
+     "FxCop extensions", []) ]
   |> List.iter (fun (files, output, nuspec, project, description, dependencies) ->
        let outputPath = "./" + output
        let workingDir = "./_Binaries/" + output
@@ -424,9 +417,9 @@ _Target "Packaging" (fun _ ->
              Publish = false
              ReleaseNotes = Path.getFullName "ReleaseNotes.md" |> File.ReadAllText
              ToolPath =
-               
-                 ("./packages/" + (packageVersion "NuGet.CommandLine")
-                  + "/tools/NuGet.exe") |> Path.getFullName }) nuspec))
+
+               ("./packages/" + (packageVersion "NuGet.CommandLine") + "/tools/NuGet.exe")
+               |> Path.getFullName }) nuspec))
 
 _Target "PrepareFrameworkBuild" (fun _ -> ())
 
@@ -471,7 +464,7 @@ _Target "Unpack" (fun _ ->
   Shell.copyDir unpack from (fun _ -> true)
 
   // TODO
-    )
+  )
 
 
 // AOB
