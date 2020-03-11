@@ -2,9 +2,9 @@
 FxCop rule extensions and related code.  A project named for that well known police constable of yesteryear.
 
 ### Badges
-* [![Nuget](https://buildstats.info/nuget/altcode.gendarme?includePreReleases=true) Command-line tool](https://www.nuget.org/packages/altcode.dixon)
-* [![Build status](https://img.shields.io/appveyor/ci/SteveGilham/Gendarme.svg)](https://ci.appveyor.com/project/SteveGilham/altcode.dixon)
-* ![Build history](https://buildstats.info/appveyor/chart/SteveGilham/altcode.dixon)
+* [![Nuget](https://buildstats.info/nuget/altcode.dixon?includePreReleases=true)](https://www.nuget.org/packages/altcode.dixon)
+* [![Build status](https://img.shields.io/appveyor/ci/SteveGilham/altcode-dixon.svg)](https://ci.appveyor.com/project/SteveGilham/altcode-dixon)
+* ![Build history](https://buildstats.info/appveyor/chart/SteveGilham/altcode-dixon)
 
 ## Build process from trunk as per `appveyor.yml`
 
