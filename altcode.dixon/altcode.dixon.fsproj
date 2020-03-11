@@ -19,9 +19,12 @@
 
 
   <ItemGroup>
+    <Compile Include="..\_Generated\AssemblyVersion.fs" Link="AssemblyVersion.fs" />
+    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="JustifySuppressionRule.fs" />
-    <EmbeddedResource Include="dixon.xml" />
+    <EmbeddedResource Include="Dixon.Design.xml" />
   </ItemGroup>
+
 
   <ItemGroup />
 

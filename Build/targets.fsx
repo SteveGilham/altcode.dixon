@@ -53,16 +53,7 @@ let nugetCache =
   Path.Combine
     (Environment.GetFolderPath Environment.SpecialFolder.UserProfile, ".nuget/packages")
 
-let fxcop =
-  if Environment.isWindows then
-    BlackFox.VsWhere.VsInstances.getAll()
-    |> Seq.filter (fun i -> System.Version(i.InstallationVersion).Major = 16)
-    |> Seq.map (fun i ->
-         i.InstallationPath @@ "Team Tools/Static Analysis Tools/FxCop/FxCopCmd.exe")
-    |> Seq.filter File.Exists
-    |> Seq.tryHead
-  else
-    None
+let fxcop = Path.getFullName "./packages/fxcop/FxCopCmd.exe"
 
 let cliArguments =
   { MSBuild.CliArguments.Create() with
@@ -143,6 +134,29 @@ let uncovered (path : string) =
                 numeric))
   |> Seq.toList
 
+let msbuildRelease proj =
+  MSBuild.build (fun p ->
+    { p with
+        Verbosity = Some MSBuildVerbosity.Normal
+        ConsoleLogParameters = []
+        DistributedLoggers = None
+        DisableInternalBinLog = true
+        Properties =
+          [ "Configuration", "Release"
+            "DebugSymbols", "True" ] }) proj
+
+let msbuildDebug proj =
+  MSBuild.build (fun p ->
+    { p with
+        Verbosity = Some MSBuildVerbosity.Normal
+        ConsoleLogParameters = []
+        DistributedLoggers = None
+        DisableInternalBinLog = true
+        Properties =
+          [ "Configuration", "Debug"
+            "DebugSymbols", "True" ] }) proj
+
+
 let _Target s f =
   Target.description s
   Target.create s f
@@ -155,33 +169,27 @@ _Target "Clean" (fun _ ->
   Actions.Clean())
 
 _Target "SetVersion" (fun _ ->
-  let appveyor = Environment.environVar "APPVEYOR_BUILD_VERSION"
-  let travis = Environment.environVar "TRAVIS_BUILD_NUMBER"
-  let version = Actions.GetVersionFromYaml()
+  let now = DateTime.Now
+  let time = now.ToString("HHmmss").Substring(0, 5).TrimStart('0')
+  let y0 = now.Year
+  let m0 = now.Month
+  let d0 = now.Day
+  let y = y0.ToString()
+  let m = m0.ToString()
+  let d = d0.ToString()
+  Version := y + "." + m + "." + d + "." + time
 
-  let ci =
-    if String.IsNullOrWhiteSpace appveyor then
-      if String.IsNullOrWhiteSpace travis then
-        String.Empty
-      else
-        (String.Join(".", version.Replace("{build}", travis).Split('.') |> Seq.take 4)
-         + "-travis")
-    else
-      appveyor
-
-  let (v, majmin, y) = Actions.LocalVersion ci version
-  Version := v
   let copy =
-    sprintf "© 2010-%d by Steve Gilham <SteveGilham@users.noreply.github.com>" y
+    sprintf "© 2010-%d by Steve Gilham <SteveGilham@users.noreply.github.com>" y0
   Copyright := "Copyright " + copy
   Directory.ensure "./_Generated"
-  Actions.InternalsVisibleTo(!Version)
+
   let v' = !Version
   [ "./_Generated/AssemblyVersion.fs"; "./_Generated/AssemblyVersion.cs" ]
   |> List.iter (fun file ->
        AssemblyInfoFile.create file
          [ AssemblyInfo.Product "altcode.dixon"
-           AssemblyInfo.Version(majmin + ".0.0")
+           AssemblyInfo.Version v'
            AssemblyInfo.FileVersion v'
            AssemblyInfo.Company "Steve Gilham"
            AssemblyInfo.Trademark ""
@@ -200,34 +208,16 @@ module SolutionRoot =
 
 _Target "Compilation" ignore
 
-_Target "BuildRelease" (fun _ ->
-  try
-    DotNet.restore (fun o -> o.WithCommon(withWorkingDirectoryVM ".")) "altcode.dixon.sln"
-    "altcode.dixon.sln"
-    |> MSBuild.build (fun p ->
-         { p with
-             Verbosity = Some MSBuildVerbosity.Normal
-             ConsoleLogParameters = []
-             DistributedLoggers = None
-             DisableInternalBinLog = true
-             Properties =
-               [ "Configuration", "Release"
-                 "DebugSymbols", "True" ] })
-  with x ->
-    printfn "%A" x
-    reraise())
-_Target "BuildDebug" (fun _ ->
-  DotNet.restore (fun o -> o.WithCommon(withWorkingDirectoryVM ".")) "altcode.dixon.sln"
-  "altcode.dixon.sln"
-  |> MSBuild.build (fun p ->
-       { p with
-           Verbosity = Some MSBuildVerbosity.Normal
-           ConsoleLogParameters = []
-           DistributedLoggers = None
-           DisableInternalBinLog = true
-           Properties =
-             [ "Configuration", "Debug"
-               "DebugSymbols", "True" ] }))
+_Target "Restore" (fun _ ->
+  (!!"./**/*.*proj")
+  |> Seq.iter (fun f ->
+       let dir = Path.GetDirectoryName f
+       let proj = Path.GetFileName f
+       DotNet.restore (fun o -> o.WithCommon(withWorkingDirectoryVM dir)) proj))
+
+_Target "BuildRelease" (fun _ -> "./altcode.dixon.sln" |> msbuildRelease)
+
+_Target "BuildDebug" (fun _ -> "./altcode.dixon.sln" |> msbuildDebug)
 
 // Code Analysis
 
@@ -275,26 +265,26 @@ _Target "Gendarme" (fun _ -> // Needs debug because release is compiled --standa
              Targets = files }))
 
 _Target "FxCop" (fun _ -> // Needs debug because release is compiled --standalone which contaminates everything
+  let nonFsharpRules =
+    [
+      "-Microsoft.Design#CA1006" // nested generics
+      "-Microsoft.Design#CA1034" // nested classes being visible
+      "-Microsoft.Design#CA1062" // null checks,  In F#!
+      "-Microsoft.Naming#CA1709" // defer to the Gendarme casing rule for implicit 'a
+      "-Microsoft.Naming#CA1715" // defer to the Gendarme naming rule for implicit 'a
+      "-Microsoft.Usage#CA2235"  // closures being serializable
+    ]
 
   Directory.ensure "./_Reports"
-  [ ([ "_Binaries/AltCode.Dixon/Debug+AnyCPU/net472/AltCode.Dixon.dll" ],
+  [ ([ Path.getFullName "_Binaries/AltCode.Dixon/Debug+AnyCPU/net472/AltCode.Dixon.dll" ],
      [],
-     [ "-Microsoft.Design#CA1006"
-       "-Microsoft.Design#CA1011"
-       "-Microsoft.Design#CA1020"
-       "-Microsoft.Design#CA1062"
-       "-Microsoft.Design#CA1034"
-       "-Microsoft.Naming#CA1704"
-       "-Microsoft.Naming#CA1707"
-       "-Microsoft.Naming#CA1709"
-       "-Microsoft.Naming#CA1724"
-       "-Microsoft.Usage#CA2208" ]) ]
+     nonFsharpRules) ]
   |> Seq.iter (fun (files, types, ruleset) ->
        files
        |> FxCop.run
             { FxCop.Params.Create() with
                 WorkingDirectory = "."
-                ToolPath = Option.get fxcop
+                ToolPath = fxcop
                 UseGAC = true
                 Verbose = false
                 ReportFileName = "_Reports/FxCopReport.xml"
@@ -313,97 +303,85 @@ _Target "UnitTest" (fun _ ->
     |> (sprintf "%d uncovered lines -- coverage too low")
     |> Assert.Fail)
 
-_Target "BuildForUnitTestDotNet" (fun _ ->
-  !!(@"./*Tests/*.tests.core.fsproj")
-  |> Seq.iter
-       (DotNet.build (fun p ->
-         { p.WithCommon dotnetOptions with Configuration = DotNet.BuildConfiguration.Debug }
-          |> withMSBuildParams)))
-
-_Target "UnitTestDotNet" (fun _ ->
+_Target "JustUnitTest" (fun _ ->
   Directory.ensure "./_Reports"
-  try
-    !!(@"./*Tests/*.fsproj")
-    |> Seq.iter
-         (DotNet.test (fun p ->
-           { p.WithCommon dotnetOptions with
-               Configuration = DotNet.BuildConfiguration.Debug
-               NoBuild = true }
-                   |> withCLIArgs))
-  with x ->
-    printfn "%A" x
-    reraise())
+  // try
+  //   !!(@"./*Tests/*.fsproj")
+  //   |> Seq.iter
+  //        (DotNet.test (fun p ->
+  //          { p.WithCommon dotnetOptions with
+  //              Configuration = DotNet.BuildConfiguration.Debug
+  //              NoBuild = true }
+  //                  |> withCLIArgs))
+  // with x ->
+  //   printfn "%A" x
+  //   reraise()
+  )
 
-_Target "BuildForAltCover" (fun _ ->
-  !!(@"./*Tests/*.tests.core.fsproj")
-  |> Seq.iter
-       (DotNet.build (fun p ->
-         { p.WithCommon dotnetOptions with Configuration = DotNet.BuildConfiguration.Debug }
-          |> withMSBuildParams)))
+_Target "UnitTestWithAltCover" (fun _ ->
+  ())
+  // let reports = Path.getFullName "./_Reports"
+  // Directory.ensure reports
+  // let report = "./_Reports/_UnitTestWithAltCoverCoreRunner"
+  // Directory.ensure report
 
-_Target "UnitTestDotNetWithAltCover" (fun _ ->
-  let reports = Path.getFullName "./_Reports"
-  Directory.ensure reports
-  let report = "./_Reports/_UnitTestWithAltCoverCoreRunner"
-  Directory.ensure report
+  // let coverage =
+  //   !!(@"./**/*.Tests.fsproj")
+  //   |> Seq.fold (fun l test ->
+  //        printfn "%A" test
+  //        let tname = test |> Path.GetFileNameWithoutExtension
 
-  let coverage =
-    !!(@"./**/*.Tests.fsproj")
-    |> Seq.fold (fun l test ->
-         printfn "%A" test
-         let tname = test |> Path.GetFileNameWithoutExtension
+  //        let testDirectory =
+  //          test
+  //          |> Path.getFullName
+  //          |> Path.GetDirectoryName
 
-         let testDirectory =
-           test
-           |> Path.getFullName
-           |> Path.GetDirectoryName
+  //        let altReport = reports @@ ("UnitTestWithAltCoverCoreRunner." + tname + ".xml")
+  //        let altReport2 = reports @@ ("UnitTestWithAltCoverCoreRunner." + tname + ".xml")
 
-         let altReport = reports @@ ("UnitTestWithAltCoverCoreRunner." + tname + ".xml")
-         let altReport2 = reports @@ ("UnitTestWithAltCoverCoreRunner." + tname + ".xml")
+  //        let collect = AltCover.CollectParams.Primitive(Primitive.CollectParams.Create()) // FSApi
 
-         let collect = AltCover.CollectParams.Primitive(Primitive.CollectParams.Create()) // FSApi
+  //        let prepare =
+  //          AltCover.PrepareParams.Primitive // FSApi
+  //            ({ Primitive.PrepareParams.Create() with
+  //                 XmlReport = altReport
+  //                 Single = true }
+  //             |> AltCoverFilter)
 
-         let prepare =
-           AltCover.PrepareParams.Primitive // FSApi
-             ({ Primitive.PrepareParams.Create() with
-                  XmlReport = altReport
-                  Single = true }
-              |> AltCoverFilter)
+  //        let ForceTrue = DotNet.CLIArgs.Force true
+  //        //printfn "Test arguments : '%s'" (DotNet.ToTestArguments prepare collect ForceTrue)
 
-         let ForceTrue = DotNet.CLIArgs.Force true
-         //printfn "Test arguments : '%s'" (DotNet.ToTestArguments prepare collect ForceTrue)
+  //        let t =
+  //          DotNet.TestOptions.Create().WithAltCoverParameters prepare collect ForceTrue
+  //        printfn "WithAltCoverParameters returned '%A'" t.Common.CustomParams
 
-         let t =
-           DotNet.TestOptions.Create().WithAltCoverParameters prepare collect ForceTrue
-         printfn "WithAltCoverParameters returned '%A'" t.Common.CustomParams
+  //        let setBaseOptions (o : DotNet.Options) =
+  //          { o with
+  //              WorkingDirectory = Path.getFullName testDirectory
+  //              Verbosity = Some DotNet.Verbosity.Minimal }
 
-         let setBaseOptions (o : DotNet.Options) =
-           { o with
-               WorkingDirectory = Path.getFullName testDirectory
-               Verbosity = Some DotNet.Verbosity.Minimal }
+  //        let cliArguments =
+  //                 { MSBuild.CliArguments.Create() with
+  //                     ConsoleLogParameters = []
+  //                     DistributedLoggers = None
+  //                     DisableInternalBinLog = true }
 
-         let cliArguments =
-                  { MSBuild.CliArguments.Create() with
-                      ConsoleLogParameters = []
-                      DistributedLoggers = None
-                      DisableInternalBinLog = true }
+  //        try
+  //          DotNet.test (fun to' ->
+  //            { to'.WithCommon(setBaseOptions).WithAltCoverParameters prepare collect
+  //                ForceTrue with MSBuildParams = cliArguments }) test
+  //        with x -> printfn "%A" x
+  //        altReport2 :: l) []
+  // ReportGenerator.generateReports (fun p ->
+  //   { p with
+  //       ToolType = ToolType.CreateLocalTool()
+  //       ReportTypes =
+  //         [ ReportGenerator.ReportType.Html; ReportGenerator.ReportType.XmlSummary ]
+  //       TargetDir = report }) coverage
 
-         try
-           DotNet.test (fun to' ->
-             { to'.WithCommon(setBaseOptions).WithAltCoverParameters prepare collect
-                 ForceTrue with MSBuildParams = cliArguments }) test
-         with x -> printfn "%A" x
-         altReport2 :: l) []
-  ReportGenerator.generateReports (fun p ->
-    { p with
-        ToolType = ToolType.CreateLocalTool()
-        ReportTypes =
-          [ ReportGenerator.ReportType.Html; ReportGenerator.ReportType.XmlSummary ]
-        TargetDir = report }) coverage
-
-  (report @@ "Summary.xml")
-  |> uncovered
-  |> printfn "%A uncovered lines")
+  // (report @@ "Summary.xml")
+  // |> uncovered
+  // |> printfn "%A uncovered lines"  )
 
 // Pure OperationalTests
 
@@ -413,21 +391,20 @@ _Target "OperationalTest" ignore
 
 _Target "Packaging" (fun _ ->
   let productDir =
-    Path.getFullName "_Binaries/AltCode.Dixon/Release+AnyCPU"
+    Path.getFullName "_Binaries/AltCode.Dixon/Release+AnyCPU/net472"
   let packable = Path.getFullName "./_Binaries/README.html"
 
   let productFiles =
-    [ (productDir @@ "AltCode.Dixon.dll", Some "lib/net472", None)
-      (productDir @@ "AltCode.Dixon.pdb", Some "lib/net472", None)
+    [ (productDir @@ "AltCode.Dixon.dll", Some "Rules", None)
+      (productDir @@ "AltCode.Dixon.pdb", Some "Rules", None)
       (Path.getFullName "./LICENS*", Some "", None)
-      (Path.getFullName "./Build/Dixon_128.*g", Some "", None)
+      (Path.getFullName "./Dixon_128.*g", Some "", None)
       (packable, Some "", None) ]
 
   [ (productFiles, "_Packaging",
-     "./_Generated/altcode.fake.dotnet.gendarme.nuspec", "AltCode.Fake.DotNet.Gendarme",
+     "./Build/altcode.dixon.nuspec", "AltCode.Dixon",
      "FxCop extensions",
-     [ // make these explicit, as this package implies an opt-in
-        ]) ]
+     []) ]
   |> List.iter (fun (files, output, nuspec, project, description, dependencies) ->
        let outputPath = "./" + output
        let workingDir = "./_Binaries/" + output
@@ -442,7 +419,7 @@ _Target "Packaging" (fun _ ->
              WorkingDir = workingDir
              Files = files
              Dependencies = dependencies
-             Version = !Version
+             Version = (!Version + "-pre-release")
              Copyright = (!Copyright).Replace("©", "(c)")
              Publish = false
              ReleaseNotes = Path.getFullName "ReleaseNotes.md" |> File.ReadAllText
@@ -460,6 +437,42 @@ _Target "PrepareReadMe" (fun _ ->
     ((!Copyright).Replace("©", "&#xa9;").Replace("<", "&lt;").Replace(">", "&gt;")))
 
 _Target "Deployment" ignore
+
+_Target "Unpack" (fun _ ->
+  let unpack = Path.getFullName "./_Unpack"
+  let config = unpack @@ ".config"
+  Directory.ensure unpack
+  Shell.cleanDir (unpack)
+  Directory.ensure config
+
+  let text = File.ReadAllText "./Build/dotnet-tools.json"
+  let newtext = text.Replace("{0}", (!Version + "-pre-release"))
+  File.WriteAllText((config @@ "dotnet-tools.json"), newtext)
+
+  let packroot = Path.GetFullPath "./_Packaging"
+  let config = XDocument.Load "./Build/NuGet.config.dotnettest"
+  let repo = config.Descendants(XName.Get("add")) |> Seq.head
+  repo.SetAttributeValue(XName.Get "value", packroot)
+  config.Save(unpack @@ "NuGet.config")
+
+  let csproj = XDocument.Load "./Build/unpack.xml"
+  let p = csproj.Descendants(XName.Get("PackageReference")) |> Seq.head
+  p.Attribute(XName.Get "Version").Value <- (!Version + "-pre-release")
+  let proj = unpack @@ "unpack.csproj"
+  csproj.Save proj
+
+  DotNet.restore (fun o ->
+    { o.WithCommon(withWorkingDirectoryVM unpack) with Packages = [ "./packages" ] })
+    proj
+
+  let vname = !Version + "-pre-release"
+  let from = (Path.getFullName @"_Unpack\packages\altcode.dixon\") @@ vname
+  printfn "Copying from %A to %A" from unpack
+  Shell.copyDir unpack from (fun _ -> true)
+
+  // TODO
+    )
+
 
 // AOB
 
@@ -491,24 +504,27 @@ Target.activateFinal "ResetConsoleColours"
 ==> "Preparation"
 
 "Preparation"
-==> "BuildRelease"
-
-"BuildRelease"
+==> "Restore"
 ==> "BuildDebug"
 ==> "Compilation"
 
-"BuildRelease"
+"Preparation"
+==> "Restore"
+==> "BuildRelease"
+==> "Compilation"
+
+"BuildDebug"
 ==> "Lint"
 ==> "Analysis"
 
 "Compilation"
 ?=> "Analysis"
 
-"Compilation"
+"BuildDebug"
 ==> "FxCop"
 ==> "Analysis"
 
-"Compilation"
+"BuildDebug"
 ==> "Gendarme"
 ==> "Analysis"
 
@@ -516,13 +532,11 @@ Target.activateFinal "ResetConsoleColours"
 ?=> "UnitTest"
 
 "Compilation"
-==> "BuildForUnitTestDotNet"
-==> "UnitTestDotNet"
+==> "JustUnitTest"
 ==> "UnitTest"
 
-"UnitTestDotNet"
-==> "BuildForAltCover"
-==> "UnitTestDotNetWithAltCover"
+"JustUnitTest"
+==> "UnitTestWithAltCover"
 ==> "UnitTest"
 
 "Compilation"
@@ -556,6 +570,11 @@ Target.activateFinal "ResetConsoleColours"
 "Deployment"
 ==> "BulkReport"
 ==> "All"
+
+"Packaging"
+==> "Unpack"
+==> "OperationalTest"
+
 
 let defaultTarget() =
   resetColours()

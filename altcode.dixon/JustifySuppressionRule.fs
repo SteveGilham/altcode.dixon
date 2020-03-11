@@ -3,7 +3,7 @@
 // http://www.binarycoder.net/fxcop/html/ex_specifysuppressmessagejustification.html
 // StyleCop will do this for you in C# code, but as an FxCop rule it's language neutral
 
-namespace Altcode.Dixon.Design
+namespace AltCode.Dixon.Design
 
 open System
 
@@ -15,7 +15,7 @@ type JustifySuppressionRule =
 
     // Default constructor as required
     new() =
-      { inherit BaseIntrospectionRule("JustifySuppression", "Dixon.Design",
+      { inherit BaseIntrospectionRule("JustifySuppression", "altcode.dixon.dixon",
                                       typeof<JustifySuppressionRule>.Assembly) }
 
     // Overrides of every Check method

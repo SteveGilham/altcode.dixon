@@ -18,6 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildItems", "BuildItems", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnet-cli", "Build\dotnet-cli.csproj", "{225910EA-70DA-442C-8856-F7D17AC1AF88}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "altcode.dixon.tests", "altcode.dixon.tests\altcode.dixon.tests.fsproj", "{1D77A8B0-F865-424B-9841-9EFCE086285C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "altcode.dixon.testdata", "altcode.dixon.testdata\altcode.dixon.testdata.csproj", "{AE84B091-CDA3-4E60-B743-5CFCDC9C9569}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +36,14 @@ Global
 		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D77A8B0-F865-424B-9841-9EFCE086285C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D77A8B0-F865-424B-9841-9EFCE086285C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D77A8B0-F865-424B-9841-9EFCE086285C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D77A8B0-F865-424B-9841-9EFCE086285C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE84B091-CDA3-4E60-B743-5CFCDC9C9569}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE84B091-CDA3-4E60-B743-5CFCDC9C9569}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE84B091-CDA3-4E60-B743-5CFCDC9C9569}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE84B091-CDA3-4E60-B743-5CFCDC9C9569}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
