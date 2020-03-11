@@ -1,4 +1,4 @@
-namespace altcode.dixon.tests
+namespace AltCode.Dixon.Tests
 
 open Microsoft.FxCop.Sdk
 open NUnit.Framework
@@ -33,3 +33,41 @@ module Justifications =
     Assert.That(problems.Count, Is.EqualTo(1))
     let problem = problems.[0].Resolution
     Assert.That(problem.Name, Is.EqualTo("justificationAbsent"))
+
+  [<Test>]
+  let ShortJustificationTest() =
+    let subject = new AltCode.Dixon.TestData.Justifications();
+    let subjectNode = Utilities.GetType subject
+
+    let offendingMethod = Utilities.GetMethod subjectNode "AnotherToken"
+
+    let ruleUnderTest = new JustifySuppressionRule()
+    let problems = ruleUnderTest.Check(offendingMethod)
+
+    Assert.That(problems.Count, Is.EqualTo(1))
+    let problem = problems.[0].Resolution
+    Assert.That(problem.Name, Is.EqualTo("justificationAbsent"))
+
+  [<Test>]
+  let EnoughJustificationTest() =
+    let subject = new AltCode.Dixon.TestData.Justifications();
+    let subjectNode = Utilities.GetType subject
+
+    let offendingMethod = Utilities.GetMethod subjectNode "YetAnotherToken"
+
+    let ruleUnderTest = new JustifySuppressionRule()
+    let problems = ruleUnderTest.Check(offendingMethod)
+
+    Assert.That(problems.Count, Is.EqualTo(0))
+
+  [<Test>]
+  let NoSuppressionTest() =
+    let subject = new AltCode.Dixon.TestData.Justifications();
+    let subjectNode = Utilities.GetType subject
+
+    let offendingMethod = Utilities.GetMethod subjectNode "Token4"
+
+    let ruleUnderTest = new JustifySuppressionRule()
+    let problems = ruleUnderTest.Check(offendingMethod)
+
+    Assert.That(problems.Count, Is.EqualTo(0))

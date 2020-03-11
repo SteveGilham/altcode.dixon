@@ -15,7 +15,7 @@ type JustifySuppressionRule =
 
     // Default constructor as required
     new() =
-      { inherit BaseIntrospectionRule("JustifySuppression", "altcode.dixon.dixon",
+      { inherit BaseIntrospectionRule("JustifySuppression", "altcode.dixon.Dixon.Design",
                                       typeof<JustifySuppressionRule>.Assembly) }
 
     // Overrides of every Check method

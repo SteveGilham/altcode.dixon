@@ -37,5 +37,15 @@ namespace AltCode.Dixon.TestData
     {
       return "Canary";
     }
+
+    /// <summary>
+    /// Used in a unit test -- should be covered
+    /// </summary>
+    /// <returns>A constant string</returns>
+    [ExcludeFromCodeCoverage]
+    public string Token4()
+    {
+      return "Canary";
+    }
   }
 }
