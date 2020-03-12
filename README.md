@@ -1,6 +1,10 @@
 # altcode.dixon
 FxCop rule extensions and related code.  A project named for that well known police constable of yesteryear.
 
+## Never mind the fluff -- How do I use this?
+
+[Here's the recipe I use](https://github.com/SteveGilham/altcode.dixon/wiki).
+
 ### Badges
 * [![Nuget](https://buildstats.info/nuget/altcode.dixon?includePreReleases=true)](https://www.nuget.org/packages/altcode.dixon)
 * [![Build status](https://img.shields.io/appveyor/ci/SteveGilham/altcode-dixon.svg)](https://ci.appveyor.com/project/SteveGilham/altcode-dixon)
