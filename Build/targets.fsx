@@ -166,6 +166,53 @@ let msbuildDebug proj =
           [ "Configuration", "Debug"
             "DebugSymbols", "True" ] }) proj
 
+let dumpSuppressions (report : String) =
+  let x = XDocument.Load report 
+  let messages = x.Descendants(XName.Get "Message")
+  messages
+  |> Seq.iter(fun m -> 
+    let mpp = m.Parent.Parent
+    let target = mpp.Name.LocalName
+    let tname = mpp.Attribute(XName.Get "Name").Value
+
+    let (text, fqn) =
+      match target with
+      | "Namespace" -> ("namespace", tname)
+      | "Resource" -> ("resource", tname)
+      | "File"
+      | "Module" -> ("module", String.Empty)
+      | "Type" -> 
+          let spp = mpp.Parent.Parent
+          ("type", spp.Attribute(XName.Get "Name").Value + "." + tname)
+      | _ -> 
+          let spp = mpp.Parent.Parent
+          let sp4 = spp.Parent.Parent
+          ("member", sp4.Attribute(XName.Get "Name").Value + "." +
+                     spp.Attribute(XName.Get "Name").Value + "." + tname)
+
+    let text2 = "[<assembly: SuppressMessage("
+    
+    let id = m.Attribute(XName.Get "Id")
+    let text3 = (if id |> isNull |> not
+                 then "," + Environment.NewLine + "  MessageId=\"" + id.Value + "\""
+                 else String.Empty)
+                + ", Justification=\"\")>]"
+    let category = m.Attribute(XName.Get "Category").Value
+    let checkId = m.Attribute(XName.Get "CheckId").Value
+    let name = m.Attribute(XName.Get "TypeName").Value
+
+    let finish t t2 =
+      let t5 = t2 + "\"" + category + "\", \"" + checkId + ":" + name + "\""
+      if t |> isNull || t = "module"
+      then t5 + text3
+      else t5 + "," + Environment.NewLine + 
+           "  Scope=\"" + t + "\", Target=\"" + fqn + "\"" + text3
+    
+    printfn "// %s : %s" checkId (String.Join("; ", m.Descendants(XName.Get "Issue")
+                                                    |> Seq.map(fun i -> i.Value)))
+    printfn "%s" (finish text text2))  
+
+
 
 let _Target s f =
   Target.description s
@@ -281,28 +328,28 @@ _Target "FxCop" (fun _ -> // Needs debug because release is compiled --standalon
       "-Microsoft.Design#CA1020" // nested classes being visible
       "-Microsoft.Design#CA1034" // nested classes being visible
       "-Microsoft.Design#CA1062" // null checks,  In F#!
-      "-Microsoft.Naming#CA1704" // what I'm trying to fix
-      "-Microsoft.Naming#CA1707" // what I'm trying to fix
-      "-Microsoft.Naming#CA1709" // what I'm trying to fix
-      "-Microsoft.Naming#CA1715" // what I'm trying to fix
       "-Microsoft.Usage#CA2235" ]
 
   Directory.ensure "./_Reports"
   [ ([ Path.getFullName "_Binaries/AltCode.Dixon/Debug+AnyCPU/net472/AltCode.Dixon.dll" ],
      [], nonFsharpRules) ]
   |> Seq.iter (fun (files, types, ruleset) ->
-       files
-       |> FxCop.run
-            { FxCop.Params.Create() with
-                WorkingDirectory = "."
-                ToolPath = fxcop
-                UseGAC = true
-                Verbose = false
-                ReportFileName = "_Reports/FxCopReport.xml"
-                Types = types
-                Rules = ruleset
-                FailOnError = FxCop.ErrorLevel.Warning
-                IgnoreGeneratedCode = true }))
+       try
+         files
+         |> FxCop.run
+              { FxCop.Params.Create() with
+                  WorkingDirectory = "."
+                  ToolPath = fxcop
+                  UseGAC = true
+                  Verbose = false
+                  ReportFileName = "_Reports/FxCopReport.xml"
+                  Types = types
+                  Rules = ruleset
+                  FailOnError = FxCop.ErrorLevel.Warning
+                  IgnoreGeneratedCode = true }
+        with
+        | _ -> dumpSuppressions "_Reports/FxCopReport.xml"
+               reraise()))
 
 // Unit Test
 
