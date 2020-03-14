@@ -12,11 +12,11 @@
     <projectUrl>https://github.com/SteveGilham/altxcode.dixon</projectUrl>
     <iconUrl>https://cdn.jsdelivr.net/gh/SteveGilham/altxcode.dixon/Build/Dixon_128.png</iconUrl>
     <icon>Dixon_128.png</icon>
-    <description>A somewhat updated build of the Mono.Gendarme static analysis tool for use with modern (including .net standard/core) assemblies.</description>
+    <description>FxCop rule additions.</description>
     <releaseNotes>@releaseNotes@</releaseNotes>
     <copyright>@copyright@</copyright>
-    <tags>gendarme static-analysis .netcore .net mono</tags>
-    <repository type="git" url="https://github.com/SteveGilham/Gendarme" />
+    <tags>fxcop static-analysis .net</tags>
+    <repository type="git" url="https://github.com/SteveGilham/altcode.dixon" />
     @dependencies@
     @references@
   </metadata>
