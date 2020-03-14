@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>AltCode.Dixon</AssemblyName>
-    <TargetFramework>net472</TargetFramework>
+    <OutputType>Exe</OutputType>
     <Platforms>x86</Platforms>
+    <TargetFramework>net472</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>$(SolutionDir)_Binaries/$(AssemblyName)/$(Configuration)+$(Platform)/</OutputPath>
     <IntermediateOutputPath>$(SolutionDir)_Intermediate/$(AssemblyName)/$(Configuration)+$(Platform)/</IntermediateOutputPath>
@@ -22,23 +22,19 @@
 
   <ItemGroup>
     <Compile Include="..\_Generated\AssemblyVersion.fs" Link="AssemblyVersion.fs" />
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="JustifySuppressionRule.fs" />
-    <EmbeddedResource Include="Dixon.Design.xml" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
 
 
-  <ItemGroup />
-
   <ItemGroup>
-    <Reference Include="FxCopSdk">
-      <HintPath>..\packages\fxcop\FxCopSdk.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Cci">
-      <HintPath>..\packages\fxcop\Microsoft.Cci.dll</HintPath>
+    <Reference Include="FxCopCmd">
+      <HintPath>..\..\altcode.dixon-pre\packages\fxcop\FxCopCmd.exe</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.CodeAnalysis">
       <HintPath>..\packages\fxcop\Microsoft.VisualStudio.CodeAnalysis.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.CodeAnalysis.Common">
+      <HintPath>..\..\altcode.dixon-pre\packages\fxcop\Microsoft.VisualStudio.CodeAnalysis.Common.dll</HintPath>
     </Reference>
   </ItemGroup>
 
