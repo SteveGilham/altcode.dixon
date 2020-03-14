@@ -22,12 +22,10 @@
   <ItemGroup>
     <Compile Include="..\_Generated\AssemblyVersion.fs" Link="AssemblyVersion.fs" />
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Utilities.fs" />
     <Compile Include="JustifySuppressionRule.fs" />
     <EmbeddedResource Include="Dixon.Design.xml" />
   </ItemGroup>
-
-
-  <ItemGroup />
 
   <ItemGroup>
     <Reference Include="FxCopSdk">
