@@ -330,6 +330,10 @@ _Target "FxCop" (fun _ -> // Needs debug because release is compiled --standalon
       "-Microsoft.Design#CA1062" // null checks,  In F#!
       "-Microsoft.Usage#CA2235" ]
 
+  Shell.copyFile // self-test
+    ((Path.GetDirectoryName fxcop) @@ "Rules/AltCode.Dixon.dll")
+    (Path.getFullName "_Binaries/AltCode.Dixon/Release+AnyCPU/net472/AltCode.Dixon.dll")
+
   Directory.ensure "./_Reports"
   [ ([ Path.getFullName "_Binaries/AltCode.Dixon/Debug+AnyCPU/net472/AltCode.Dixon.dll" ],
      [], nonFsharpRules) ]
@@ -570,6 +574,10 @@ Target.activateFinal "ResetConsoleColours"
 ?=> "Analysis"
 
 "BuildDebug"
+==> "FxCop"
+==> "Analysis"
+
+"BuildRelease"
 ==> "FxCop"
 ==> "Analysis"
 
