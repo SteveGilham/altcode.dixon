@@ -219,6 +219,7 @@ let dumpSuppressions (report : String) =
            ("; ", m.Descendants(XName.Get "Issue") |> Seq.map (fun i -> i.Value)))
        printfn "%s" (finish text text2))
 
+
 let _Target s f =
   Target.description s
   Target.create s f
@@ -336,7 +337,7 @@ _Target "Gendarme" (fun _ -> // Needs debug because release is compiled --standa
 
   let rules = Path.getFullName "./Build/common-rules.xml"
 
-  [ (rules, [ "_Binaries/AltCode.Dixon/Debug+AnyCPU/net472/AltCode.Dixon.dll" ]) ]
+  [ (rules, [ "_Binaries/AltCode.Dixon/Debug+x86/net472/AltCode.Dixon.dll" ]) ]
   |> Seq.iter (fun (ruleset, files) ->
        Gendarme.run
          { Gendarme.Params.Create() with
@@ -360,11 +361,12 @@ _Target "FxCop" (fun _ -> // Needs debug because release is compiled --standalon
       "-Microsoft.Design#CA1062" // null checks,  In F#!
       "-Microsoft.Usage#CA2235" ]
 
-  Shell.copyFile ((Path.GetDirectoryName fxcop) @@ "Rules/AltCode.Dixon.dll")  // self-test
-    (Path.getFullName "_Binaries/AltCode.Dixon/Release+AnyCPU/net472/AltCode.Dixon.dll")
+  Shell.copyFile // self-test
+    ((Path.GetDirectoryName fxcop) @@ "Rules/AltCode.Dixon.dll")
+    (Path.getFullName "_Binaries/AltCode.Dixon/Release+x86/net472/AltCode.Dixon.dll")
 
   Directory.ensure "./_Reports"
-  [ ([ Path.getFullName "_Binaries/AltCode.Dixon/Debug+AnyCPU/net472/AltCode.Dixon.dll" ],
+  [ ([ Path.getFullName "_Binaries/AltCode.Dixon/Debug+x86/net472/AltCode.Dixon.dll" ],
      [], nonFsharpRules) ]
   |> Seq.iter (fun (files, types, ruleset) ->
        try
@@ -380,9 +382,9 @@ _Target "FxCop" (fun _ -> // Needs debug because release is compiled --standalon
                   Rules = ruleset
                   FailOnError = FxCop.ErrorLevel.Warning
                   IgnoreGeneratedCode = true }
-       with _ ->
-         dumpSuppressions "_Reports/FxCopReport.xml"
-         reraise()))
+        with
+        | _ -> dumpSuppressions "_Reports/FxCopReport.xml"
+               reraise()))
 
 // Unit Test
 
@@ -497,7 +499,7 @@ _Target "OperationalTest" ignore
 // Packaging
 
 _Target "Packaging" (fun _ ->
-  let productDir = Path.getFullName "_Binaries/AltCode.Dixon/Release+AnyCPU/net472"
+  let productDir = Path.getFullName "_Binaries/AltCode.Dixon/Release+x86/net472"
   let packable = Path.getFullName "./_Binaries/README.html"
 
   let productFiles =
