@@ -51,31 +51,34 @@ let main argv =
 
     // interesting platform assemblies
     let corelib = AssemblyName("System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e")
-    let netstdlib = AssemblyName("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
+    //let netstdlib = AssemblyName("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
+    let netstdlib = AssemblyName("netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
 
     // TODO -- environment names
     let printInfo i =
         props
         |> Array.iter(fun p -> printfn "%s : %A" p.Name (p.GetValue(i, null)))
 
-    let netstd2 = """C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.0.9\netstandard.dll"""
+    let netstd2 = """C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1\netstandard.dll"""
     let netinfo = getInfo.Invoke(null, [| netstd2 :> obj|])
     printInfo netinfo
     let refs = (props
                 |> Array.find (fun p -> p.Name = "AssemblyReferences" )).GetValue(netinfo, null) :?> IList<AssemblyName>
 
     // moniker ".NETStandard,Version=v2.0 "
-    let core = """C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.0.9\System.Private.CoreLib.dll"""
+    let core = """C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1\System.Private.CoreLib.dll"""
     let dirpath = netstd2 |> Path.GetDirectoryName
-    let refpaths = Directory.GetFiles(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.0.9", "*.dll")
+    let refpaths = Directory.GetFiles(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1", "*.dll")
+
+    // /f:C:\Users\steve\Documents\GitHub\altcode.dixon\_Binaries\altcode.dixon.testdata\Debug+AnyCPU\netstandard2.1\altcode.dixon.testdata.dll /console "/platform:C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1"
 
     let uMap = Convert.ChangeType(makeUnify.Invoke([| |]), unification)
     refs |> Seq.iter(fun r ->adder.Invoke(uMap, [| r ; r |]) |> ignore)
-    //adder.Invoke(uMap, [| corelib :> obj; netstdlib :> obj|]) |> ignore
-    //adder.Invoke(uMap, [| netstdlib :> obj; corelib :> obj|]) |> ignore
+    adder.Invoke(uMap, [| corelib :> obj; netstdlib :> obj|]) |> ignore
+    adder.Invoke(uMap, [| netstdlib :> obj; corelib :> obj|]) |> ignore
 
-    //let add = makePlatform.Invoke([| unknown; netstdlib; uMap; [dirpath] ; core |])
-    //platforms.Add add |> ignore
+    let add = makePlatform.Invoke([| unknown; netstdlib; uMap; [dirpath] ; core |])
+    platforms.Add add |> ignore
 
     //refpaths
     //|> Seq.map (fun f -> try
