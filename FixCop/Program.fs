@@ -69,14 +69,33 @@ let main argv =
     //printInfo netinfo
     let refs = (props
                 |> Array.find (fun p -> p.Name = "AssemblyReferences" )).GetValue(netinfo, null) :?> IList<AssemblyName>
+                |> Seq.sortBy (fun n -> n.Name)
+                |> Seq.toArray
 
     let dirpath = netstd2 |> Path.GetDirectoryName
     let refpaths = Directory.GetFiles(platformPath, "*.dll")
+    let refnames = refpaths
+                   |> Seq.map (fun p -> try
+                                          p |> AssemblyName.GetAssemblyName |> Some
+                                        with
+                                        | _ -> None)
+                   |> Seq.choose id
+                   |> Seq.toArray
 
-    // /f:C:\Users\steve\Documents\GitHub\altcode.dixon\_Binaries\altcode.dixon.testdata\Debug+AnyCPU\netstandard2.1\altcode.dixon.testdata.dll /console "/platform:C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1"
+    let refmap = refs
+                 |> Seq.map (fun n -> if n.Version.ToString() <> "0.0.0.0"
+                                      then n
+                                      else refnames
+                                           |> Seq.find (fun r -> r.Name = n.Name))
+                 |> Seq.toArray
 
     let uMap = Convert.ChangeType(makeUnify.Invoke([| |]), unification)
-    refs |> Seq.iter(fun r ->adder.Invoke(uMap, [| r ; r |]) |> ignore)
+
+    refs
+    |> Seq.zip refmap
+    |> Seq.iter(fun r -> printfn "%A" r
+                         adder.Invoke(uMap, [| fst r; snd r |]) |> ignore)
+                         //adder.Invoke(uMap, [| snd r; fst r |]) |> ignore)
     adder.Invoke(uMap, [| corelib :> obj; netstdlib :> obj|]) |> ignore
     adder.Invoke(uMap, [| netstdlib :> obj; corelib :> obj|]) |> ignore
 

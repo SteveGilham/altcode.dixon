@@ -2,7 +2,7 @@
   "profiles": {
     "FixCop": {
       "commandName": "Project",
-      "commandLineArgs": "/f:C:\\Users\\steve\\Documents\\GitHub\\altcode.dixon\\_Binaries\\altcode.dixon.testdata\\Debug+AnyCPU\\netstandard2.1\\altcode.dixon.testdata.dll /console \"/platform:C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\3.1.1\""
+      "commandLineArgs": "/f:C:\\Users\\steve\\Documents\\GitHub\\altcode.dixon\\_Binaries\\altcode.dixon.testdata\\Debug+AnyCPU\\netstandard2.0\\altcode.dixon.testdata.dll /console \"/platform:C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\2.2.8\""
     }
   }
 }
