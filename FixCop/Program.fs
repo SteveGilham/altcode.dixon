@@ -7,6 +7,10 @@ open System.Collections.Generic
 
 [<EntryPoint>]
 let main argv =
+    let plat = argv
+               |> Seq.find (fun a -> a.StartsWith("/platform:"))
+    let platformPath = plat.Substring(10)
+
     let here = Assembly.GetExecutingAssembly().Location
     let files = here |> Path.GetDirectoryName
                 |> Directory.GetFiles
@@ -38,7 +42,6 @@ let main argv =
     let platform = cacommon.GetType("Microsoft.VisualStudio.CodeAnalysis.Common.Platform")
     let unification = cacommon.GetType("Microsoft.VisualStudio.CodeAnalysis.Common.UnificationAssemblyNameMap")
     let ptype = typeof<PlatformInfo>.Assembly.GetType("Microsoft.VisualStudio.CodeAnalysis.PlatformType")
-    let midori = Enum.Parse(ptype, "Midori")
     let unknown = Enum.Parse(ptype, "Unknown")
 
     // interesting calls
@@ -50,25 +53,25 @@ let main argv =
     let alt = platform.GetField("m_alternatePlatform", BindingFlags.NonPublic|||BindingFlags.Instance)
 
     // interesting platform assemblies
+    let netstd2 = Path.Combine(platformPath, "netstandard.dll")
+    let netstdlib = netstd2 |> AssemblyName.GetAssemblyName
+
+    let core = Path.Combine(platformPath, "System.Private.CoreLib.dll")
+    //let corelib = core |> AssemblyName.GetAssemblyName // throws, but name seems fixed anyway
     let corelib = AssemblyName("System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e")
-    //let netstdlib = AssemblyName("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
-    let netstdlib = AssemblyName("netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
 
     // TODO -- environment names
-    let printInfo i =
-        props
-        |> Array.iter(fun p -> printfn "%s : %A" p.Name (p.GetValue(i, null)))
+    //let printInfo i =
+    //    props
+    //    |> Array.iter(fun p -> printfn "%s : %A" p.Name (p.GetValue(i, null)))
 
-    let netstd2 = """C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1\netstandard.dll"""
     let netinfo = getInfo.Invoke(null, [| netstd2 :> obj|])
-    printInfo netinfo
+    //printInfo netinfo
     let refs = (props
                 |> Array.find (fun p -> p.Name = "AssemblyReferences" )).GetValue(netinfo, null) :?> IList<AssemblyName>
 
-    // moniker ".NETStandard,Version=v2.0 "
-    let core = """C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1\System.Private.CoreLib.dll"""
     let dirpath = netstd2 |> Path.GetDirectoryName
-    let refpaths = Directory.GetFiles(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1", "*.dll")
+    let refpaths = Directory.GetFiles(platformPath, "*.dll")
 
     // /f:C:\Users\steve\Documents\GitHub\altcode.dixon\_Binaries\altcode.dixon.testdata\Debug+AnyCPU\netstandard2.1\altcode.dixon.testdata.dll /console "/platform:C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1"
 
@@ -116,8 +119,8 @@ let main argv =
     let main = command.GetMethod("Main", BindingFlags.Static ||| BindingFlags.Public)
     let r = main.Invoke(null, [| argv :> obj |])
 
-    [add; add2]
-    |> List.iter (fun a -> platform.GetProperties(BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Instance ||| BindingFlags.Static)
-                           |> Seq.iter (fun p -> let v = p.GetValue(a, null)
-                                                 printfn "%s => %A" p.Name v))
+    //[add; add2]
+    //|> List.iter (fun a -> platform.GetProperties(BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Instance ||| BindingFlags.Static)
+    //                       |> Seq.iter (fun p -> let v = p.GetValue(a, null)
+    //                                             printfn "%s => %A" p.Name v))
     r:?> int 
