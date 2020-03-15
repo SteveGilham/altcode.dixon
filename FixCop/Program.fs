@@ -3,6 +3,7 @@ open System.IO
 open System.Reflection
 open Microsoft.VisualStudio.CodeAnalysis
 open Microsoft.VisualStudio.CodeAnalysis.Common
+open Microsoft.FxCop.Sdk
 open System.Collections.Generic
 
 [<EntryPoint>]
@@ -74,9 +75,35 @@ let main argv =
 
     let dirpath = netstd2 |> Path.GetDirectoryName
     let refpaths = Directory.GetFiles(platformPath, "*.dll")
+    let cci = typeof<Identifier>.Assembly
+    let tp = cci.GetType("Microsoft.FxCop.Sdk.TargetPlatform")
+    let areff = tp.GetProperty("AssemblyReferenceFor").GetValue(null)
+    let areffi = areff.GetType().GetMethod("set_Item",
+                                           BindingFlags.Instance |||
+                                           BindingFlags.Public |||
+                                           BindingFlags.NonPublic,
+                                           null,
+                                           [| typeof<Int32>; typeof<obj> |],
+                                           null)
+    let areffi2 = areff.GetType().GetProperty("Item")
+    let aref = cci.GetType("Microsoft.FxCop.Sdk.AssemblyReference")
+    let build = aref.GetConstructor(BindingFlags.Instance |||
+                                    BindingFlags.Public |||
+                                    BindingFlags.NonPublic,
+                                    null, [|typeof<AssemblyNode>|], null)
+
     let refnames = refpaths
                    |> Seq.map (fun p -> try
-                                          p |> AssemblyName.GetAssemblyName |> Some
+                                          let an = p |> AssemblyName.GetAssemblyName
+                                          let key = Identifier.For(an.Name).UniqueIdKey
+                                          let node = AssemblyNode.GetAssembly(p)
+                                          let ar = build.Invoke( [| node :> obj |])
+                                          areffi.Invoke(areff, [|
+                                                  key :> obj
+                                                  ar
+                                               |]) |> ignore
+
+                                          an |> Some
                                         with
                                         | _ -> None)
                    |> Seq.choose id

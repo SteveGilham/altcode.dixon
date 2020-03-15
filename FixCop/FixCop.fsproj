@@ -30,6 +30,9 @@
     <Reference Include="FxCopCmd">
       <HintPath>..\..\altcode.dixon-pre\packages\fxcop\FxCopCmd.exe</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Cci">
+      <HintPath>..\..\altcode.dixon-pre\packages\fxcop\Microsoft.Cci.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.CodeAnalysis">
       <HintPath>..\packages\fxcop\Microsoft.VisualStudio.CodeAnalysis.dll</HintPath>
     </Reference>
