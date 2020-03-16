@@ -91,11 +91,26 @@ module Justifications =
     let ruleUnderTest = new JustifySuppressionRule()
     let problems = ruleUnderTest.Check(subjectNode)
     Assert.That(problems.Count, Is.EqualTo(0))
-    let problems = ruleUnderTest.Check(subjectNode.DeclaringModule)
-    Assert.That(problems.Count, Is.EqualTo(0))
 
+  [<Test>]
+  let NoSuppressionParameterTest() =
+    let subject = new AltCode.Dixon.TestData.Justifications()
+    let subjectNode = Utilities.GetType subject
+
+    let ruleUnderTest = new JustifySuppressionRule()
     let offendingMethod = Utilities.GetMethod subjectNode "Token4"
     let problems = ruleUnderTest.Check((offendingMethod :?> Method).Parameters
                                        |> Seq.head)
 
     Assert.That(problems.Count, Is.EqualTo(0))
+
+  [<Test>]
+  let BlankAssemblyJustificationTest() =
+    let subject = new AltCode.Dixon.TestData.Justifications()
+    let subjectNode = Utilities.GetType subject
+
+    let ruleUnderTest = new JustifySuppressionRule()
+    let problems = ruleUnderTest.Check(subjectNode.DeclaringModule)
+    Assert.That(problems.Count, Is.EqualTo(1))
+    let problem = problems.[0].Resolution
+    Assert.That(problem.Name, Is.EqualTo("justificationAbsent"))

@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
+[assembly: SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
+
 namespace AltCode.Dixon.TestData
 {
   public class Justifications
