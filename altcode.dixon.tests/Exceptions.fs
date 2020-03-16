@@ -1,4 +1,4 @@
-﻿namespace AltCode.Dixon.Tests
+namespace AltCode.Dixon.Tests
 
 open System
 open System.Reflection
@@ -33,7 +33,7 @@ module Exceptions =
     let problem = problems.[0].Resolution
     Assert.That(problem.Name, Is.EqualTo("preserveStackDetails"))
 
-  let myType () =
+  let myType() =
     let assembly = AssemblyNode.GetAssembly(Assembly.GetExecutingAssembly().Location)
     assembly.GetType(Identifier.For("AltCode.Dixon.Tests"), Identifier.For("Exceptions"))
 
@@ -119,32 +119,29 @@ module Exceptions =
 
     Assert.That(problems.Count, Is.EqualTo(0))
 
-  let Fail () =
-    raise (InvalidOperationException())
+  let Fail() = raise (InvalidOperationException())
 
-  let Fail0 () =
-    InvalidOperationException() |> raise
+  let Fail0() = InvalidOperationException() |> raise
 
-  let Fail1 () =
-    raise <| InvalidOperationException()
+  let Fail1() = raise <| InvalidOperationException()
 
-  let Fail2 () =
+  let Fail2() =
     try
       Fail0()
-    with
-    | x -> printfn "%A" x
-           x |> raise
+    with x ->
+      printfn "%A" x
+      x |> raise
 
-  let Fail3 () =
+  let Fail3() =
     try
       Fail1()
-    with
-    | x -> printfn "%A" x
-           raise x
+    with x ->
+      printfn "%A" x
+      raise x
 
-  let FailSafe () =
+  let FailSafe() =
     try
       Fail1()
-    with
-    | x -> printfn "%A" x
-           reraise()
+    with x ->
+      printfn "%A" x
+      reraise()

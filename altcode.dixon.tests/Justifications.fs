@@ -99,8 +99,8 @@ module Justifications =
 
     let ruleUnderTest = new JustifySuppressionRule()
     let offendingMethod = Utilities.GetMethod subjectNode "Token4"
-    let problems = ruleUnderTest.Check((offendingMethod :?> Method).Parameters
-                                       |> Seq.head)
+    let problems =
+      ruleUnderTest.Check((offendingMethod :?> Method).Parameters |> Seq.head)
 
     Assert.That(problems.Count, Is.EqualTo(0))
 
