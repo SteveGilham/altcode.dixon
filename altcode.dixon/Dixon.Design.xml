@@ -11,4 +11,14 @@
     <FixCategories>NonBreaking</FixCategories>
     <Owner />
   </Rule>
+  <Rule TypeName="ReraiseCorrectly" Category="Dixon.Design" CheckId="Dx0002">
+    <Name>Do not lose stack details from indirect explicit rethrows</Name>
+    <Description>If an exception is re-raised, wrap it or use implicit &quot;throw;&quot; to preserve the stack details.</Description>
+    <Url></Url>
+    <Resolution Name="preserveStackDetails">Do not throw an explicit pre-existing exception.</Resolution>
+    <MessageLevel Certainty="80">Warning</MessageLevel>
+    <Email>tines@ravnaandtines.com</Email>
+    <FixCategories>NonBreaking</FixCategories>
+    <Owner></Owner>
+  </Rule>
 </Rules>

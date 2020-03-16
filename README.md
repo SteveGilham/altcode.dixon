@@ -1,10 +1,14 @@
 # altcode.dixon
 FxCop rule extensions and related code.  A project named for that well known police constable of yesteryear.
 
+## Never mind the fluff -- How do I use this?
+
+[Here's the recipe I use](https://github.com/SteveGilham/altcode.dixon/wiki).
+
 ### Badges
-* [![Nuget](https://buildstats.info/nuget/altcode.gendarme?includePreReleases=true) Command-line tool](https://www.nuget.org/packages/altcode.dixon)
-* [![Build status](https://img.shields.io/appveyor/ci/SteveGilham/Gendarme.svg)](https://ci.appveyor.com/project/SteveGilham/altcode.dixon)
-* ![Build history](https://buildstats.info/appveyor/chart/SteveGilham/altcode.dixon)
+* [![Nuget](https://buildstats.info/nuget/altcode.dixon?includePreReleases=true)](https://www.nuget.org/packages/altcode.dixon)
+* [![Build status](https://img.shields.io/appveyor/ci/SteveGilham/altcode-dixon.svg)](https://ci.appveyor.com/project/SteveGilham/altcode-dixon)
+* ![Build history](https://buildstats.info/appveyor/chart/SteveGilham/altcode-dixon)
 
 ## Build process from trunk as per `appveyor.yml`
 
@@ -21,3 +25,4 @@ As usual, the focus is on F#, since we don't have Roslyn analyzers there.  This 
 
 ## Features
 * `JustifySuppressionRule` (`Dixon.Design#DX0001`), the "Hello, World!" of FxCop rules.  A port of the well travelled example rule to ensure that `SuppressMessage` attributes include a justification.  See e.g. http://www.binarycoder.net/fxcop/html/ex_specifysuppressmessagejustification.html
+* `ReraiseCorrectlyRule` (`Dixon.Design#DX0002`) : only `throw` and exception you've just created

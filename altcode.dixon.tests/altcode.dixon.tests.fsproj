@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Compile Include="Justifications.fs" />
+    <Compile Include="Exceptions.fs" />
   </ItemGroup>
 
   <ItemGroup>
