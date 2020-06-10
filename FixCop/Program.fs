@@ -58,8 +58,8 @@ let main argv =
     let netstdlib = netstd2 |> AssemblyName.GetAssemblyName
 
     let core = Path.Combine(platformPath, "System.Private.CoreLib.dll")
-    //let corelib = core |> AssemblyName.GetAssemblyName // throws, but name seems fixed anyway
-    let corelib = AssemblyName("System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e")
+    let corelib = core |> AssemblyName.GetAssemblyName // throws, but name seems fixed anyway
+    //let corelib = AssemblyName("System.Private.CoreLib, Version=5.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e")
 
     // TODO -- environment names
     //let printInfo i =
