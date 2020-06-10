@@ -7,8 +7,8 @@ open System.Xml.Linq
 
 open Actions
 open AltCode.Fake.DotNet
-open AltCover_Fake.DotNet.DotNet
-open AltCover_Fake.DotNet.Testing
+open AltCoverFake.DotNet.DotNet
+open AltCoverFake.DotNet.Testing
 
 open Fake.Core
 open Fake.Core.TargetOperators
@@ -35,7 +35,7 @@ let programFiles = Environment.environVar "ProgramFiles"
 let programFiles86 = Environment.environVar "ProgramFiles(x86)"
 let dotnetPath = "dotnet" |> Fake.Core.ProcessUtils.tryFindFileOnPath
 
-let AltCoverFilter(p : Primitive.PrepareParams) =
+let AltCoverFilter(p : Primitive.PrepareOptions) =
   { p with
       //MethodFilter = "WaitForExitCustom" :: (p.MethodFilter |> Seq.toList)
       AssemblyExcludeFilter =
@@ -167,10 +167,10 @@ let msbuildDebug proj =
             "DebugSymbols", "True" ] }) proj
 
 let dumpSuppressions (report : String) =
-  let x = XDocument.Load report 
+  let x = XDocument.Load report
   let messages = x.Descendants(XName.Get "Message")
   messages
-  |> Seq.iter(fun m -> 
+  |> Seq.iter(fun m ->
     let mpp = m.Parent.Parent
     let target = mpp.Name.LocalName
     let tname = mpp.Attribute(XName.Get "Name").Value
@@ -181,17 +181,17 @@ let dumpSuppressions (report : String) =
       | "Resource" -> ("resource", tname)
       | "File"
       | "Module" -> ("module", String.Empty)
-      | "Type" -> 
+      | "Type" ->
           let spp = mpp.Parent.Parent
           ("type", spp.Attribute(XName.Get "Name").Value + "." + tname)
-      | _ -> 
+      | _ ->
           let spp = mpp.Parent.Parent
           let sp4 = spp.Parent.Parent
           ("member", sp4.Attribute(XName.Get "Name").Value + "." +
                      spp.Attribute(XName.Get "Name").Value + "." + tname)
 
     let text2 = "[<assembly: SuppressMessage("
-    
+
     let id = m.Attribute(XName.Get "Id")
     let text3 = (if id |> isNull |> not
                  then "," + Environment.NewLine + "  MessageId=\"" + id.Value + "\""
@@ -205,14 +205,12 @@ let dumpSuppressions (report : String) =
       let t5 = t2 + "\"" + category + "\", \"" + checkId + ":" + name + "\""
       if t |> isNull || t = "module"
       then t5 + text3
-      else t5 + "," + Environment.NewLine + 
+      else t5 + "," + Environment.NewLine +
            "  Scope=\"" + t + "\", Target=\"" + fqn + "\"" + text3
-    
+
     printfn "// %s : %s" checkId (String.Join("; ", m.Descendants(XName.Get "Issue")
                                                     |> Seq.map(fun i -> i.Value)))
-    printfn "%s" (finish text text2))  
-
-
+    printfn "%s" (finish text text2))
 
 let _Target s f =
   Target.description s
@@ -303,7 +301,6 @@ _Target "Lint" (fun _ ->
 
 _Target "Gendarme" (fun _ -> // Needs debug because release is compiled --standalone which contaminates everything
 
-
   Directory.ensure "./_Reports"
 
   let rules = Path.getFullName "./Build/common-rules.xml"
@@ -319,6 +316,7 @@ _Target "Gendarme" (fun _ -> // Needs debug because release is compiled --standa
              Console = true
              Log = "./_Reports/gendarme.html"
              LogKind = Gendarme.LogKind.Html
+             ToolType = ToolType.CreateLocalTool()
              Targets = files }))
 
 _Target "FxCop" (fun _ -> // Needs debug because release is compiled --standalone which contaminates everything
@@ -380,37 +378,36 @@ _Target "JustUnitTest" (fun _ ->
     printfn "%A" x
     reraise())
 
-
-_Target "UnitTestWithAltCover" (fun _ -> 
+_Target "UnitTestWithAltCover" (fun _ ->
   Directory.ensure "./_Reports/_UnitTestWithAltCover"
   let keyfile = Path.getFullName "Build/SelfTest.snk"
   let reports = Path.getFullName "./_Reports"
 
   let inputs = !!(@"_Binaries/*tests/Debug+AnyCPU/net4*/*tests.dll")
                |> Seq.toArray
-  let indir = inputs 
+  let indir = inputs
               |> Array.map Path.GetDirectoryName
-  let outdir = indir 
+  let outdir = indir
                |> Array.map (fun d -> d @@ "__UnitTestWithAltCover" )
 
   let altReport = reports @@ "UnitTestWithAltCover.xml"
   let prep =
-    AltCover.PrepareParams.Primitive
-      ({ Primitive.PrepareParams.Create() with
+    AltCover.PrepareOptions.Primitive
+      ({ Primitive.PrepareOptions.Create() with
            XmlReport = altReport
            InputDirectories = indir
            OutputDirectories = outdir
            StrongNameKey = keyfile
-           OpenCover = true
+           ReportFormat = "OpenCover"
            InPlace = false
            Save = false }
        |> AltCoverFilter)
-    |> AltCover.Prepare
-  { AltCover.Params.Create prep with
+    |> AltCoverCommand.Prepare
+  { AltCoverCommand.Options.Create prep with
       ToolPath = altcover
-      FakeToolType = Some framework_altcover
+      ToolType = framework_altcover
       WorkingDirectory = "." }
-  |> AltCover.run
+  |> AltCoverCommand.run
 
   printfn "Unit test the instrumented code"
   try
@@ -526,7 +523,6 @@ _Target "Unpack" (fun _ ->
   // TODO
   )
 
-
 // AOB
 
 _Target "BulkReport" (fun _ ->
@@ -631,7 +627,6 @@ Target.activateFinal "ResetConsoleColours"
 "Packaging"
 ==> "Unpack"
 ==> "OperationalTest"
-
 
 let defaultTarget() =
   resetColours()

@@ -13,6 +13,9 @@ environment:
     secure: qgIIfE76i59qTVO64mT7QwKcAUUYCQLie4XdUdlnt7MXLhrwqTbcfGUsCss/TmLg
 nuget:
   disable_publish_on_pr: true
+install:
+  # SDK version fix
+  - cinst dotnetcore-sdk --version 5.0.100-preview.4.20258.7
 build_script:
 - ps: >-
     $ErrorActionPreference = 'Continue'

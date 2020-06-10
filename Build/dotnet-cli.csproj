@@ -9,12 +9,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NuGet.CommandLine" version="5.4.0">
+    <PackageReference Include="NuGet.CommandLine" version="5.5.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="altcode.gendarme" version="2020.3.9.15370-pre-release" />
-    <PackageReference Include="altcover" version="6.7.750" />
+    <PackageReference Include="altcover" version="7.0.773" />
     <PackageReference Include="NUnit.ConsoleRunner" version="3.11.1" />
   </ItemGroup>
 </Project>
