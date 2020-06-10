@@ -2,7 +2,7 @@
 
 [Here's the recipe I use](https://github.com/SteveGilham/altcode.dixon/wiki).
 
-# 2020.xx.xx.xxxxx-pre-release
+# 2020.3.16.14542-pre-release
 
 * `ReraiseCorrectlyRule` (`Dixon.Design#DX0002`) : only `throw` and exception you've just created
 
