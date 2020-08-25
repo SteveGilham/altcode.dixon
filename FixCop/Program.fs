@@ -23,7 +23,8 @@ let main argv =
                             |> Assembly.LoadFile
                             |> ignore
                           with
-                          | _ -> printfn "Could not load %s" n)
+                          | _ -> (sprintf "Could not load %s" n)
+                                 |> System.Diagnostics.Debug.WriteLine)
 
     // tracing
     let ca = Path.Combine ( here |> Path.GetDirectoryName, "Microsoft.VisualStudio.CodeAnalysis.dll")
@@ -125,7 +126,8 @@ let main argv =
                             neutral.Version <- Version("0.0.0.0")
                             adder.Invoke(uMap, [| neutral :> obj; name :> obj|]) |> ignore
                           with
-                          | _ -> printfn "Could not map %s" f)
+                          | _ -> (sprintf "Could not map %s" f)
+                                 |> System.Diagnostics.Debug.WriteLine)
 
     let add = makePlatform.Invoke([| unknown; netstandard20; uMap; refpaths ; netstd2 |])
     let add2 = makePlatform.Invoke([| unknown; netstandard21; uMap; [dirpath] ; netstd2 |])
