@@ -9,8 +9,13 @@ open System.Collections.Generic
 [<EntryPoint>]
 let main argv =
     let plat = argv
-               |> Seq.find (fun a -> a.StartsWith("/platform:"))
-    let platformPath = plat.Substring(10)
+               |> Seq.tryFind (fun a -> a.StartsWith("/plat"))
+    let platformPath = match plat with
+                       | Some p -> p.Substring(p.IndexOf(":") + 1)
+                       | _ -> "Platform folder not specified"
+                              |> InvalidDataException
+                              |> raise
+    printfn "Platformpath = %s" platformPath
 
     let here = Assembly.GetExecutingAssembly().Location
     here
