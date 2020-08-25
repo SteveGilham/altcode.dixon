@@ -60,7 +60,8 @@ let main argv =
 
     // interesting platform assemblies
     let netstd2 = Path.Combine(platformPath, "netstandard.dll")
-    let netstdlib = netstd2 |> AssemblyName.GetAssemblyName
+    //let core = Path.Combine(platformPath, "System.Private.CoreLib.dll")
+    //let corelib = core |> AssemblyName.GetAssemblyName // throws, but name seems fixed anyway
 
     let netinfo = getInfo.Invoke(null, [| netstd2 :> obj|])
     let refs = (props
@@ -115,6 +116,8 @@ let main argv =
     let netstandard20 = AssemblyName("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
     let netstandard21 = AssemblyName("netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
     adder.Invoke(uMap, [| netstandard20 :> obj; netstandard21 :> obj|]) |> ignore
+    //adder.Invoke(uMap, [| netstandard20 :> obj; corelib :> obj|]) |> ignore
+    //adder.Invoke(uMap, [| netstandard20 :> obj; corelib :> obj|]) |> ignore
     refpaths
     |> Seq.iter (fun f -> try
                             let name = f |> AssemblyName.GetAssemblyName
