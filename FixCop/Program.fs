@@ -17,6 +17,15 @@ let main argv =
                               |> raise
     printfn "Platformpath = %s" platformPath
 
+// Would it help to populate this cache from nuget??
+//// Microsoft.FxCop.Sdk.Reader
+//using System;
+//using System.Collections;
+//using System.Collections.Generic;
+
+//internal static readonly IDictionary StaticAssemblyCache = new SynchronizedWeakDictionary();
+//Strong name => Assembly node
+
     let here = Assembly.GetExecutingAssembly().Location
     here
     |> Path.GetDirectoryName
