@@ -13,7 +13,8 @@ let main argv =
     let platformPath = plat.Substring(10)
 
     let here = Assembly.GetExecutingAssembly().Location
-    let files = here |> Path.GetDirectoryName
+    let files = here
+                |> Path.GetDirectoryName
                 |> Directory.GetFiles
                 |> Seq.filter (fun f -> f.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
                 |> Seq.sortDescending

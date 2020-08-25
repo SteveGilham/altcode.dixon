@@ -20,12 +20,10 @@
     <OtherFlags>--keyfile:$(SolutionDir)Build\Infrastructure.snk --standalone</OtherFlags>
   </PropertyGroup>
 
-
   <ItemGroup>
     <Compile Include="..\_Generated\AssemblyVersion.fs" Link="AssemblyVersion.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
-
 
   <ItemGroup>
     <Reference Include="FxCopCmd">
@@ -41,7 +39,6 @@
       <HintPath>..\..\altcode.dixon-pre\packages\fxcop\Microsoft.VisualStudio.CodeAnalysis.Common.dll</HintPath>
     </Reference>
   </ItemGroup>
-
 
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.7.2" />
