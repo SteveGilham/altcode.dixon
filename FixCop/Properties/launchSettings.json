@@ -2,7 +2,8 @@
   "profiles": {
     "FixCop": {
       "commandName": "Project",
-      "commandLineArgs": "/f:C:\\Users\\steve\\Documents\\GitHub\\altcode.dixon\\_Binaries\\altcode.dixon.testdata\\Debug+AnyCPU\\netstandard2.0\\altcode.dixon.testdata.dll /console \"/platform:C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\3.1.7\""
+      "commandLineArgs": "/c /f:_Binaries/AltCover.FontSupport/Debug+AnyCPU/netstandard2.0/AltCover.FontSupport.dll /f:_Binaries/AltCover/Debug+AnyCPU/netstandard2.0/AltCover.dll /f:_Binaries/AltCover.DataCollector/Debug+AnyCPU/netstandard2.0/AltCover.DataCollector.dll /o:_Reports/FxCopReport.xml \"/plat:C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\3.1.7\" /rid:-Microsoft.Design#CA1020 /rid:-Microsoft.Usage#CA2243:AttributeStringLiteralsShouldParseCorrectly /ignoregeneratedcode /s /gac",
+      "workingDirectory": "C:\\Users\\steve\\Documents\\GitHub\\altcover"
     }
   }
 }
