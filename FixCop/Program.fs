@@ -13,13 +13,17 @@ let main argv =
     let platformPath = plat.Substring(10)
 
     let here = Assembly.GetExecutingAssembly().Location
-    let files = here
-                |> Path.GetDirectoryName
-                |> Directory.GetFiles
-                |> Seq.filter (fun f -> f.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
-                |> Seq.sortDescending
-                |> Seq.map (fun n -> Path.Combine ( here |> Path.GetDirectoryName, n)
-                                     |> Assembly.LoadFile)
+    here
+    |> Path.GetDirectoryName
+    |> Directory.GetFiles
+    |> Seq.filter (fun f -> f.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+    |> Seq.sortDescending
+    |> Seq.iter (fun n -> try
+                            Path.Combine ( here |> Path.GetDirectoryName, n)
+                            |> Assembly.LoadFile
+                            |> ignore
+                          with
+                          | _ -> printfn "Could not load %s" n)
 
     // tracing
     let ca = Path.Combine ( here |> Path.GetDirectoryName, "Microsoft.VisualStudio.CodeAnalysis.dll")
@@ -58,17 +62,7 @@ let main argv =
     let netstd2 = Path.Combine(platformPath, "netstandard.dll")
     let netstdlib = netstd2 |> AssemblyName.GetAssemblyName
 
-    let core = Path.Combine(platformPath, "System.Private.CoreLib.dll")
-    let corelib = core |> AssemblyName.GetAssemblyName // throws, but name seems fixed anyway
-    //let corelib = AssemblyName("System.Private.CoreLib, Version=5.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e")
-
-    // TODO -- environment names
-    //let printInfo i =
-    //    props
-    //    |> Array.iter(fun p -> printfn "%s : %A" p.Name (p.GetValue(i, null)))
-
     let netinfo = getInfo.Invoke(null, [| netstd2 :> obj|])
-    //printInfo netinfo
     let refs = (props
                 |> Array.find (fun p -> p.Name = "AssemblyReferences" )).GetValue(netinfo, null) :?> IList<AssemblyName>
                 |> Seq.sortBy (fun n -> n.Name)
@@ -86,7 +80,7 @@ let main argv =
                                            null,
                                            [| typeof<Int32>; typeof<obj> |],
                                            null)
-    let areffi2 = areff.GetType().GetProperty("Item")
+
     let aref = cci.GetType("Microsoft.FxCop.Sdk.AssemblyReference")
     let build = aref.GetConstructor(BindingFlags.Instance |||
                                     BindingFlags.Public |||
@@ -118,56 +112,36 @@ let main argv =
                  |> Seq.toArray
 
     let uMap = Convert.ChangeType(makeUnify.Invoke([| |]), unification)
+    let netstandard20 = AssemblyName("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
+    let netstandard21 = AssemblyName("netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
+    adder.Invoke(uMap, [| netstandard20 :> obj; netstandard21 :> obj|]) |> ignore
+    refpaths
+    |> Seq.iter (fun f -> try
+                            let name = f |> AssemblyName.GetAssemblyName
+                            let neutral = AssemblyName(name.FullName)
+                            neutral.Version <- Version("0.0.0.0")
+                            adder.Invoke(uMap, [| neutral :> obj; name :> obj|]) |> ignore
+                          with
+                          | _ -> printfn "Could not map %s" f)
 
-    refs
-    |> Seq.zip refmap
-    |> Seq.iter(fun r -> printfn "%A" r
-                         adder.Invoke(uMap, [| fst r; snd r |]) |> ignore)
-                         //adder.Invoke(uMap, [| snd r; fst r |]) |> ignore)
-    adder.Invoke(uMap, [| corelib :> obj; netstdlib :> obj|]) |> ignore
-    adder.Invoke(uMap, [| netstdlib :> obj; corelib :> obj|]) |> ignore
-
-    let add = makePlatform.Invoke([| unknown; netstdlib; uMap; [dirpath] ; core |])
-    platforms.Add add |> ignore
-
-    //refpaths
-    //|> Seq.map (fun f -> try
-    //                        Some ((f |> Assembly.LoadFile).GetName())
-    //                     with
-    //                     | _ -> None)
-    //|> Seq.choose id
-    //|> Seq.iter (fun n -> let add2 = makePlatform.Invoke([| unknown; n; uMap; [dirpath] ; dirpath |])
-    //                      alt.SetValue(add, add2)
-    //                      alt.SetValue(add2, add)
-    //                      add2
-    //                      |> platforms.Add
-    //                      |> ignore)
-
-    let add = makePlatform.Invoke([| unknown; netstdlib; uMap; refpaths ; netstd2 |])
-    let add2 = makePlatform.Invoke([| unknown; corelib; uMap; [dirpath] ; core |])
+    let add = makePlatform.Invoke([| unknown; netstandard20; uMap; refpaths ; netstd2 |])
+    let add2 = makePlatform.Invoke([| unknown; netstandard21; uMap; [dirpath] ; netstd2 |])
     let pi = platform.GetProperty("PlatformInfo")
     let pi1 = pi.GetValue(add) :?> PlatformInfo
-    let pi2 = pi.GetValue(add2) :?> PlatformInfo
+    //let pi2 = pi.GetValue(add2) :?> PlatformInfo
     let pin = typeof<PlatformInfo>.GetProperty("PlatformType", BindingFlags.NonPublic ||| BindingFlags.Instance)
-    pin.SetValue(pi2, pin.GetValue(pi1))
+    //pin.SetValue(pi2, pin.GetValue(pi1))
     let piv = typeof<PlatformInfo>.GetProperty("PlatformVersion", BindingFlags.Public ||| BindingFlags.Instance)
-    piv.SetValue(pi2, piv.GetValue(pi1))
+    //piv.SetValue(pi2, piv.GetValue(pi1))
 
     alt.SetValue(add, add2)
     alt.SetValue(add2, add)
 
     platforms.Add add |> ignore
-    platforms.Add add2 |> ignore
-
     let fxcop = Path.Combine ( here |> Path.GetDirectoryName, "FxCopCmd.exe")
     let driven = fxcop
                  |> Assembly.LoadFile
     let command = driven.GetType("Microsoft.FxCop.Command.FxCopCommand")
     let main = command.GetMethod("Main", BindingFlags.Static ||| BindingFlags.Public)
     let r = main.Invoke(null, [| argv :> obj |])
-
-    //[add; add2]
-    //|> List.iter (fun a -> platform.GetProperties(BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Instance ||| BindingFlags.Static)
-    //                       |> Seq.iter (fun p -> let v = p.GetValue(a, null)
-    //                                             printfn "%s => %A" p.Name v))
     r:?> int 
