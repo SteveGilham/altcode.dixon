@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildItems", "BuildItems", 
 		Build\targets.fsx = Build\targets.fsx
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnet-cli", "Build\dotnet-cli.csproj", "{225910EA-70DA-442C-8856-F7D17AC1AF88}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NuGet", "Build\NuGet.csproj", "{225910EA-70DA-442C-8856-F7D17AC1AF88}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "altcode.dixon.tests", "altcode.dixon.tests\altcode.dixon.tests.fsproj", "{1D77A8B0-F865-424B-9841-9EFCE086285C}"
 EndProject

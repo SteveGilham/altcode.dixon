@@ -7,8 +7,8 @@ open System.Xml.Linq
 
 open Actions
 open AltCode.Fake.DotNet
-open AltCover_Fake.DotNet.DotNet
-open AltCover_Fake.DotNet.Testing
+open AltCoverFake.DotNet.DotNet
+open AltCoverFake.DotNet.Testing
 
 open Fake.Core
 open Fake.Core.TargetOperators
@@ -35,7 +35,7 @@ let programFiles = Environment.environVar "ProgramFiles"
 let programFiles86 = Environment.environVar "ProgramFiles(x86)"
 let dotnetPath = "dotnet" |> Fake.Core.ProcessUtils.tryFindFileOnPath
 
-let AltCoverFilter(p : Primitive.PrepareParams) =
+let AltCoverFilter(p : Primitive.PrepareOptions) =
   { p with
       //MethodFilter = "WaitForExitCustom" :: (p.MethodFilter |> Seq.toList)
       AssemblyExcludeFilter =
@@ -93,7 +93,7 @@ let package project =
 
 let toolPackages =
   let xml =
-    "./Build/dotnet-cli.csproj"
+    "./Build/NuGet.csproj"
     |> Path.getFullName
     |> XDocument.Load
   xml.Descendants(XName.Get("PackageReference"))
@@ -109,7 +109,7 @@ let nunitConsole =
   |> Path.getFullName
 
 let altcover =
-  ("./packages/" + (packageVersion "altcover") + "/tools/net45/AltCover.exe")
+  ("./packages/" + (packageVersion "altcover") + "/tools/net472/AltCover.exe")
   |> Path.getFullName
 
 let framework_altcover = Fake.DotNet.ToolType.CreateFullFramework()
@@ -399,22 +399,21 @@ _Target "UnitTestWithAltCover" (fun _ ->
   let altReport = reports @@ "UnitTestWithAltCover.xml"
 
   let prep =
-    AltCover.PrepareParams.Primitive
-      ({ Primitive.PrepareParams.Create() with
+    AltCover.PrepareOptions.Primitive
+      ({ Primitive.PrepareOptions.Create() with
            XmlReport = altReport
            InputDirectories = indir
            OutputDirectories = outdir
            StrongNameKey = keyfile
-           OpenCover = true
            InPlace = false
            Save = false }
        |> AltCoverFilter)
-    |> AltCover.Prepare
-  { AltCover.Params.Create prep with
+    |> AltCoverCommand.Prepare
+  { AltCoverCommand.Options.Create prep with
       ToolPath = altcover
-      FakeToolType = Some framework_altcover
+      ToolType = framework_altcover
       WorkingDirectory = "." }
-  |> AltCover.run
+  |> AltCoverCommand.run
 
   printfn "Unit test the instrumented code"
   try
