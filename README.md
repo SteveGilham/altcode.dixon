@@ -9,6 +9,8 @@ FxCop rule extensions and related code.  A project named for that well known pol
 * [![Nuget](https://buildstats.info/nuget/altcode.dixon?includePreReleases=true)](https://www.nuget.org/packages/altcode.dixon)
 * [![Build status](https://img.shields.io/appveyor/ci/SteveGilham/altcode-dixon.svg)](https://ci.appveyor.com/project/SteveGilham/altcode-dixon)
 * ![Build history](https://buildstats.info/appveyor/chart/SteveGilham/altcode-dixon)
+* [![CI](https://github.com/SteveGilham/altcode.dixon/workflows/CI/badge.svg)](https://github.com/SteveGilham/altcode.dixon/actions?query=workflow%3ACI)
+* ![Build history](https://buildstats.info/github/chart/SteveGilham/altcode.dixon?branch=master)]
 
 ## Build process from trunk as per `appveyor.yml`
 
