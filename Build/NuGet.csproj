@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net47</TargetFramework>
+    <Platforms>x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,12 +10,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NuGet.CommandLine" version="5.5.1">
+    <PackageReference Include="NuGet.CommandLine" version="5.8.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="altcode.gendarme" version="2020.3.9.15370-pre-release" />
-    <PackageReference Include="altcover" version="7.0.773" />
+    <PackageReference Include="altcover" version="7.2.801" />
     <PackageReference Include="NUnit.ConsoleRunner" version="3.11.1" />
   </ItemGroup>
 </Project>

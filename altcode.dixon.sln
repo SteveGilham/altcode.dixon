@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildItems", "BuildItems", 
 		Build\targets.fsx = Build\targets.fsx
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnet-cli", "Build\dotnet-cli.csproj", "{225910EA-70DA-442C-8856-F7D17AC1AF88}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NuGet", "Build\NuGet.csproj", "{225910EA-70DA-442C-8856-F7D17AC1AF88}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "altcode.dixon.tests", "altcode.dixon.tests\altcode.dixon.tests.fsproj", "{1D77A8B0-F865-424B-9841-9EFCE086285C}"
 EndProject
@@ -37,14 +37,13 @@ Global
 		{E03BA4A3-F4DE-4D99-B771-78637706B9F7}.Debug|Any CPU.Build.0 = Debug|x86
 		{E03BA4A3-F4DE-4D99-B771-78637706B9F7}.Release|Any CPU.ActiveCfg = Release|x86
 		{E03BA4A3-F4DE-4D99-B771-78637706B9F7}.Release|Any CPU.Build.0 = Release|x86
-		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1D77A8B0-F865-424B-9841-9EFCE086285C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1D77A8B0-F865-424B-9841-9EFCE086285C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D77A8B0-F865-424B-9841-9EFCE086285C}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{1D77A8B0-F865-424B-9841-9EFCE086285C}.Debug|Any CPU.Build.0 = Debug|x86
 		{1D77A8B0-F865-424B-9841-9EFCE086285C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AE84B091-CDA3-4E60-B743-5CFCDC9C9569}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AE84B091-CDA3-4E60-B743-5CFCDC9C9569}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE84B091-CDA3-4E60-B743-5CFCDC9C9569}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{AE84B091-CDA3-4E60-B743-5CFCDC9C9569}.Debug|Any CPU.Build.0 = Debug|x86
 		{AE84B091-CDA3-4E60-B743-5CFCDC9C9569}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39489D32-48AB-46B0-968A-244BF11EB5BC}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{39489D32-48AB-46B0-968A-244BF11EB5BC}.Debug|Any CPU.Build.0 = Debug|x86

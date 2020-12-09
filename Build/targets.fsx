@@ -93,7 +93,7 @@ let package project =
 
 let toolPackages =
   let xml =
-    "./Build/dotnet-cli.csproj"
+    "./Build/NuGet.csproj"
     |> Path.getFullName
     |> XDocument.Load
   xml.Descendants(XName.Get("PackageReference"))
@@ -109,7 +109,7 @@ let nunitConsole =
   |> Path.getFullName
 
 let altcover =
-  ("./packages/" + (packageVersion "altcover") + "/tools/net45/AltCover.exe")
+  ("./packages/" + (packageVersion "altcover") + "/tools/net472/AltCover.exe")
   |> Path.getFullName
 
 let framework_altcover = Fake.DotNet.ToolType.CreateFullFramework()
@@ -170,47 +170,58 @@ let dumpSuppressions (report : String) =
   let x = XDocument.Load report
   let messages = x.Descendants(XName.Get "Message")
   messages
-  |> Seq.iter(fun m ->
-    let mpp = m.Parent.Parent
-    let target = mpp.Name.LocalName
-    let tname = mpp.Attribute(XName.Get "Name").Value
+  |> Seq.iter (fun m ->
+       let mpp = m.Parent.Parent
+       let target = mpp.Name.LocalName
+       let tname = mpp.Attribute(XName.Get "Name").Value
 
-    let (text, fqn) =
-      match target with
-      | "Namespace" -> ("namespace", tname)
-      | "Resource" -> ("resource", tname)
-      | "File"
-      | "Module" -> ("module", String.Empty)
-      | "Type" ->
-          let spp = mpp.Parent.Parent
-          ("type", spp.Attribute(XName.Get "Name").Value + "." + tname)
-      | _ ->
-          let spp = mpp.Parent.Parent
-          let sp4 = spp.Parent.Parent
-          ("member", sp4.Attribute(XName.Get "Name").Value + "." +
-                     spp.Attribute(XName.Get "Name").Value + "." + tname)
+       let (text, fqn) =
+         match target with
+         | "Namespace" -> ("namespace", tname)
+         | "Resource" -> ("resource", tname)
+         | "File"
+         | "Module" -> ("module", String.Empty)
+         | "Type" ->
+             let spp = mpp.Parent.Parent
+             ("type", spp.Attribute(XName.Get "Name").Value + "." + tname)
+         | _ ->
+             let spp = mpp.Parent.Parent
+             let sp4 = spp.Parent.Parent
+             ("member",
+              sp4.Attribute(XName.Get "Name").Value + "."
+              + spp.Attribute(XName.Get "Name").Value + "." + tname)
 
-    let text2 = "[<assembly: SuppressMessage("
+       let text2 = "[<assembly: SuppressMessage("
 
-    let id = m.Attribute(XName.Get "Id")
-    let text3 = (if id |> isNull |> not
-                 then "," + Environment.NewLine + "  MessageId=\"" + id.Value + "\""
-                 else String.Empty)
-                + ", Justification=\"\")>]"
-    let category = m.Attribute(XName.Get "Category").Value
-    let checkId = m.Attribute(XName.Get "CheckId").Value
-    let name = m.Attribute(XName.Get "TypeName").Value
+       let id = m.Attribute(XName.Get "Id")
 
-    let finish t t2 =
-      let t5 = t2 + "\"" + category + "\", \"" + checkId + ":" + name + "\""
-      if t |> isNull || t = "module"
-      then t5 + text3
-      else t5 + "," + Environment.NewLine +
-           "  Scope=\"" + t + "\", Target=\"" + fqn + "\"" + text3
+       let text3 =
+         (if id
+             |> isNull
+             |> not then
+           "," + Environment.NewLine + "  MessageId=\"" + id.Value + "\""
+          else
+            String.Empty)
+         + ", Justification=\"\")>]"
 
-    printfn "// %s : %s" checkId (String.Join("; ", m.Descendants(XName.Get "Issue")
-                                                    |> Seq.map(fun i -> i.Value)))
-    printfn "%s" (finish text text2))
+       let category = m.Attribute(XName.Get "Category").Value
+       let checkId = m.Attribute(XName.Get "CheckId").Value
+       let name = m.Attribute(XName.Get "TypeName").Value
+
+       let finish t t2 =
+         let t5 = t2 + "\"" + category + "\", \"" + checkId + ":" + name + "\""
+         if t
+            |> isNull
+            || t = "module" then
+           t5 + text3
+         else
+           t5 + "," + Environment.NewLine + "  Scope=\"" + t + "\", Target=\"" + fqn
+           + "\"" + text3
+
+       printfn "// %s : %s" checkId
+         (String.Join
+           ("; ", m.Descendants(XName.Get "Issue") |> Seq.map (fun i -> i.Value)))
+       printfn "%s" (finish text text2))
 
 let _Target s f =
   Target.description s
@@ -316,7 +327,7 @@ _Target "Gendarme" (fun _ -> // Needs debug because release is compiled --standa
              Console = true
              Log = "./_Reports/gendarme.html"
              LogKind = Gendarme.LogKind.Html
-             ToolType = ToolType.CreateLocalTool()
+             ToolType = ToolType.CreateLocalTool().WithDotNetOptions(dotnetOptions) 
              Targets = files }))
 
 _Target "FxCop" (fun _ -> // Needs debug because release is compiled --standalone which contaminates everything
@@ -331,7 +342,6 @@ _Target "FxCop" (fun _ -> // Needs debug because release is compiled --standalon
   Shell.copyFile // self-test
     ((Path.GetDirectoryName fxcop) @@ "Rules/AltCode.Dixon.dll")
     (Path.getFullName "_Binaries/AltCode.Dixon/Release+x86/net472/AltCode.Dixon.dll")
-
   Directory.ensure "./_Reports"
   [ ([ Path.getFullName "_Binaries/AltCode.Dixon/Debug+x86/net472/AltCode.Dixon.dll" ],
      [], nonFsharpRules) ]
@@ -367,7 +377,7 @@ _Target "UnitTest" (fun _ ->
 _Target "JustUnitTest" (fun _ ->
   Directory.ensure "./_Reports"
   try
-    !!(@"_Binaries/*tests/Debug+AnyCPU/net4*/*tests.dll")
+    !!(@"_Binaries/*tests/Debug+x86/net4*/*tests.dll")
     |> NUnit3.run (fun p ->
          { p with
              ToolPath = nunitConsole
@@ -383,7 +393,7 @@ _Target "UnitTestWithAltCover" (fun _ ->
   let keyfile = Path.getFullName "Build/SelfTest.snk"
   let reports = Path.getFullName "./_Reports"
 
-  let inputs = !!(@"_Binaries/*tests/Debug+AnyCPU/net4*/*tests.dll")
+  let inputs = !!(@"_Binaries/*tests/Debug+x86/net4*/*tests.dll")
                |> Seq.toArray
   let indir = inputs
               |> Array.map Path.GetDirectoryName
@@ -391,6 +401,7 @@ _Target "UnitTestWithAltCover" (fun _ ->
                |> Array.map (fun d -> d @@ "__UnitTestWithAltCover" )
 
   let altReport = reports @@ "UnitTestWithAltCover.xml"
+
   let prep =
     AltCover.PrepareOptions.Primitive
       ({ Primitive.PrepareOptions.Create() with
@@ -429,13 +440,11 @@ _Target "UnitTestWithAltCover" (fun _ ->
         ToolType = ToolType.CreateLocalTool()
         ReportTypes =
           [ ReportGenerator.ReportType.Html; ReportGenerator.ReportType.XmlSummary ]
-        TargetDir = "_Reports/_UnitTestWithAltCover" })
-    [ altReport ]
+        TargetDir = "_Reports/_UnitTestWithAltCover" }) [ altReport ]
 
-  uncovered @"_Reports/_UnitTestWithAltCover/Summary.xml"
-  |> printfn "%A uncovered lines"
+  uncovered @"_Reports/_UnitTestWithAltCover/Summary.xml" |> printfn "%A uncovered lines"
 
-)
+  )
 // Pure OperationalTests
 
 _Target "OperationalTest" ignore

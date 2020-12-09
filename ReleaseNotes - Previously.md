@@ -1,3 +1,7 @@
+
+# 2020.3.16.14542-pre-release
+
+* `ReraiseCorrectlyRule` (`Dixon.Design#DX0002`) : only `throw` and exception you've just created
 # 2020.3.11.19262-pre-release
 
 Proof of concept

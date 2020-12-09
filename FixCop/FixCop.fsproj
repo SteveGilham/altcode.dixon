@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <Platforms>x86</Platforms>
     <TargetFramework>net472</TargetFramework>
+    <NoWarn>2011</NoWarn>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>preview</LangVersion>
     <OutputPath>$(SolutionDir)_Binaries/$(AssemblyName)/$(Configuration)+$(Platform)/</OutputPath>
