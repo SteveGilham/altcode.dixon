@@ -38,7 +38,7 @@ let main argv =
     let platform = cacommon.GetType("Microsoft.VisualStudio.CodeAnalysis.Common.Platform")
     let unification = cacommon.GetType("Microsoft.VisualStudio.CodeAnalysis.Common.UnificationAssemblyNameMap")
     let ptype = typeof<PlatformInfo>.Assembly.GetType("Microsoft.VisualStudio.CodeAnalysis.PlatformType")
-    let midori = Enum.Parse(ptype, "Midori")
+    // let midori = Enum.Parse(ptype, "Midori")
     let unknown = Enum.Parse(ptype, "Unknown")
 
     // interesting calls
@@ -50,10 +50,10 @@ let main argv =
     let alt = platform.GetField("m_alternatePlatform", BindingFlags.NonPublic|||BindingFlags.Instance)
 
     // interesting platform assemblies
-    let corelib = AssemblyName("System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e")
-    //let netstdlib = AssemblyName("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
-    let netstdlib = AssemblyName("netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
+    let netstdlib = AssemblyName("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
     let mscorlib4 = AssemblyName("mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
+
+    // Idea -- replace netstandard with mscorlib
 
     // TODO -- environment names
     let printInfo i =
@@ -67,32 +67,32 @@ let main argv =
                 |> Array.find (fun p -> p.Name = "AssemblyReferences" )).GetValue(netinfo, null) :?> IList<AssemblyName>
 
     // moniker ".NETStandard,Version=v2.0 "
-    let core = """C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1\System.Private.CoreLib.dll"""
-    let dirpath = netstd2 |> Path.GetDirectoryName
-    let refpaths = Directory.GetFiles(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1", "*.dll")
+    //let core = """C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1\System.Private.CoreLib.dll"""
+    //let dirpath = netstd2 |> Path.GetDirectoryName
+    //let refpaths = Directory.GetFiles(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1", "*.dll")
 
     // /f:C:\Users\steve\Documents\GitHub\altcode.dixon\_Binaries\altcode.dixon.testdata\Debug+AnyCPU\netstandard2.1\altcode.dixon.testdata.dll /console "/platform:C:\Program Files\dotnet\shared\Microsoft.NETCore.App\3.1.1"
 
     let uMap = Convert.ChangeType(makeUnify.Invoke([| |]), unification)
     refs |> Seq.iter(fun r ->adder.Invoke(uMap, [| r ; r |]) |> ignore)
-    adder.Invoke(uMap, [| corelib :> obj; netstdlib :> obj|]) |> ignore
-    adder.Invoke(uMap, [| netstdlib :> obj; corelib :> obj|]) |> ignore
+    adder.Invoke(uMap, [| mscorlib4 :> obj; netstdlib :> obj|]) |> ignore
+    adder.Invoke(uMap, [| netstdlib :> obj; mscorlib4 :> obj|]) |> ignore
 
     let add = makePlatform.Invoke([| unknown; netstdlib; uMap; [dirpath] ; core |])
     platforms.Add add |> ignore
 
-    //refpaths
-    //|> Seq.map (fun f -> try
-    //                        Some ((f |> Assembly.LoadFile).GetName())
-    //                     with
-    //                     | _ -> None)
-    //|> Seq.choose id
-    //|> Seq.iter (fun n -> let add2 = makePlatform.Invoke([| unknown; n; uMap; [dirpath] ; dirpath |])
-    //                      alt.SetValue(add, add2)
-    //                      alt.SetValue(add2, add)
-    //                      add2
-    //                      |> platforms.Add
-    //                      |> ignore)
+    ////refpaths
+    ////|> Seq.map (fun f -> try
+    ////                        Some ((f |> Assembly.LoadFile).GetName())
+    ////                     with
+    ////                     | _ -> None)
+    ////|> Seq.choose id
+    ////|> Seq.iter (fun n -> let add2 = makePlatform.Invoke([| unknown; n; uMap; [dirpath] ; dirpath |])
+    ////                      alt.SetValue(add, add2)
+    ////                      alt.SetValue(add2, add)
+    ////                      add2
+    ////                      |> platforms.Add
+    ////                      |> ignore)
 
     let add = makePlatform.Invoke([| unknown; netstdlib; uMap; refpaths ; netstd2 |])
     let add2 = makePlatform.Invoke([| unknown; corelib; uMap; [dirpath] ; core |])
