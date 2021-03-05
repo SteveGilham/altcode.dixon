@@ -130,6 +130,7 @@ let main argv =
     let uMap = Convert.ChangeType(makeUnify.Invoke([| |]), unification)
     let netstandard20 = AssemblyName("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
     let netstandard21 = AssemblyName("netstandard, Version=2.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
+    let mscorlib4 = AssemblyName("mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
     adder.Invoke(uMap, [| netstandard20 :> obj; netstandard21 :> obj|]) |> ignore
     //adder.Invoke(uMap, [| netstandard20 :> obj; corelib :> obj|]) |> ignore
     //adder.Invoke(uMap, [| netstandard20 :> obj; corelib :> obj|]) |> ignore
