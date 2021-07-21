@@ -76,13 +76,9 @@ let withMSBuildParams (o : Fake.DotNet.DotNet.BuildOptions) =
 let currentBranch =
   let env = Environment.environVar "APPVEYOR_REPO_BRANCH"
   if env |> String.IsNullOrWhiteSpace then
-    let env1 = Environment.environVar "TRAVIS_BRANCH"
-    if env1 |> String.IsNullOrWhiteSpace then
       "."
       |> Path.getFullName
       |> Information.getBranchName
-    else
-      env1
   else
     env
 
