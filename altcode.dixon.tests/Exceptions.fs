@@ -14,7 +14,7 @@ module Exceptions =
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail1"
 
-    let ruleUnderTest = new ReraiseCorrectlyRule()
+    let ruleUnderTest = ReraiseCorrectlyRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
@@ -26,7 +26,7 @@ module Exceptions =
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail2"
 
-    let ruleUnderTest = new ReraiseCorrectlyRule()
+    let ruleUnderTest = ReraiseCorrectlyRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(1))
@@ -43,7 +43,7 @@ module Exceptions =
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail"
 
-    let ruleUnderTest = new ReraiseCorrectlyRule()
+    let ruleUnderTest = ReraiseCorrectlyRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
@@ -54,7 +54,7 @@ module Exceptions =
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail0"
 
-    let ruleUnderTest = new ReraiseCorrectlyRule()
+    let ruleUnderTest = ReraiseCorrectlyRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
@@ -65,7 +65,7 @@ module Exceptions =
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail1"
 
-    let ruleUnderTest = new ReraiseCorrectlyRule()
+    let ruleUnderTest = ReraiseCorrectlyRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
@@ -76,7 +76,7 @@ module Exceptions =
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail2"
 
-    let ruleUnderTest = new ReraiseCorrectlyRule()
+    let ruleUnderTest = ReraiseCorrectlyRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(1))
@@ -89,7 +89,7 @@ module Exceptions =
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail3"
 
-    let ruleUnderTest = new ReraiseCorrectlyRule()
+    let ruleUnderTest = ReraiseCorrectlyRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(1))
@@ -103,7 +103,7 @@ module Exceptions =
 
     let offendingMethod = Utilities.GetMethod subjectNode "FailSafe"
 
-    let ruleUnderTest = new ReraiseCorrectlyRule()
+    let ruleUnderTest = ReraiseCorrectlyRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
@@ -114,7 +114,7 @@ module Exceptions =
 
     let offendingMethod = Utilities.GetMethod subjectNode "FailSafe"
 
-    let ruleUnderTest = new ReraiseCorrectlyRule()
+    let ruleUnderTest = ReraiseCorrectlyRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))

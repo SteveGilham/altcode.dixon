@@ -24,7 +24,7 @@ module Justifications =
 
     let offendingMethod = Utilities.GetMethod subjectNode "Token"
 
-    let ruleUnderTest = new JustifySuppressionRule()
+    let ruleUnderTest = JustifySuppressionRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(1))
@@ -38,7 +38,7 @@ module Justifications =
 
     let offendingMethod = Utilities.GetMethod subjectNode "EmptyToken"
 
-    let ruleUnderTest = new JustifySuppressionRule()
+    let ruleUnderTest = JustifySuppressionRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(1))
@@ -52,7 +52,7 @@ module Justifications =
 
     let offendingMethod = Utilities.GetMethod subjectNode "AnotherToken"
 
-    let ruleUnderTest = new JustifySuppressionRule()
+    let ruleUnderTest = JustifySuppressionRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(1))
@@ -66,7 +66,7 @@ module Justifications =
 
     let offendingMethod = Utilities.GetMethod subjectNode "YetAnotherToken"
 
-    let ruleUnderTest = new JustifySuppressionRule()
+    let ruleUnderTest = JustifySuppressionRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
@@ -78,7 +78,7 @@ module Justifications =
 
     let offendingMethod = Utilities.GetMethod subjectNode "Token4"
 
-    let ruleUnderTest = new JustifySuppressionRule()
+    let ruleUnderTest = JustifySuppressionRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
@@ -88,7 +88,7 @@ module Justifications =
     let subject = new AltCode.Dixon.TestData.Justifications()
     let subjectNode = Utilities.GetType subject
 
-    let ruleUnderTest = new JustifySuppressionRule()
+    let ruleUnderTest = JustifySuppressionRule()
     let problems = ruleUnderTest.Check(subjectNode)
     Assert.That(problems.Count, Is.EqualTo(0))
 
@@ -97,7 +97,7 @@ module Justifications =
     let subject = new AltCode.Dixon.TestData.Justifications()
     let subjectNode = Utilities.GetType subject
 
-    let ruleUnderTest = new JustifySuppressionRule()
+    let ruleUnderTest = JustifySuppressionRule()
     let offendingMethod = Utilities.GetMethod subjectNode "Token4"
     let problems =
       ruleUnderTest.Check((offendingMethod :?> Method).Parameters |> Seq.head)
@@ -109,7 +109,7 @@ module Justifications =
     let subject = new AltCode.Dixon.TestData.Justifications()
     let subjectNode = Utilities.GetType subject
 
-    let ruleUnderTest = new JustifySuppressionRule()
+    let ruleUnderTest = JustifySuppressionRule()
     let problems = ruleUnderTest.Check(subjectNode.DeclaringModule)
     Assert.That(problems.Count, Is.EqualTo(1))
     let problem = problems.[0].Resolution
