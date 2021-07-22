@@ -23,8 +23,8 @@ open Fake.IO.Globbing
 open Fake.IO.Globbing.Operators
 open Fake.Tools.Git
 
-open FSharpLint.Application
-open FSharpLint.Framework
+//open FSharpLint.Application
+//open FSharpLint.Framework
 
 open NUnit.Framework
 
@@ -76,13 +76,9 @@ let withMSBuildParams (o : Fake.DotNet.DotNet.BuildOptions) =
 let currentBranch =
   let env = Environment.environVar "APPVEYOR_REPO_BRANCH"
   if env |> String.IsNullOrWhiteSpace then
-    let env1 = Environment.environVar "TRAVIS_BRANCH"
-    if env1 |> String.IsNullOrWhiteSpace then
       "."
       |> Path.getFullName
       |> Information.getBranchName
-    else
-      env1
   else
     env
 
@@ -112,7 +108,7 @@ let altcover =
   ("./packages/" + (packageVersion "altcover") + "/tools/net472/AltCover.exe")
   |> Path.getFullName
 
-let framework_altcover = Fake.DotNet.ToolType.CreateFullFramework()
+let frameworkAltcover = Fake.DotNet.ToolType.CreateFullFramework()
 
 let misses = ref 0
 
@@ -290,25 +286,49 @@ _Target "BuildDebug" (fun _ -> "./altcode.dixon.sln" |> msbuildDebug)
 _Target "Analysis" ignore
 
 _Target "Lint" (fun _ ->
-  let failOnIssuesFound (issuesFound : bool) =
-    Assert.That(issuesFound, Is.False, "Lint issues were found")
-  let options =
-    { Lint.OptionalLintParameters.Default with
-        Configuration = FromFile(Path.getFullName "./fsharplint.json") }
+      let cfg = Path.getFullName "./fsharplint.json"
 
-  !!"**/*.fsproj"
-  |> Seq.collect (fun n -> !!(Path.GetDirectoryName n @@ "*.fs"))
-  |> Seq.distinct
-  |> Seq.map (fun f ->
-       match Lint.lintFile options f with
-       | Lint.LintResult.Failure x -> failwithf "%A" x
-       | Lint.LintResult.Success w -> w)
-  |> Seq.concat
-  |> Seq.fold (fun _ x ->
-       printfn "Info: %A\r\n Range: %A\r\n Fix: %A\r\n====" x.Details.Message
-         x.Details.Range x.Details.SuggestedFix
-       true) false
-  |> failOnIssuesFound)
+      let doLint f =
+        CreateProcess.fromRawCommand "dotnet" ["fsharplint"; "lint";  "-l"; cfg ; f]
+        |> CreateProcess.ensureExitCodeWithMessage "Lint issues were found"
+        |> Proc.run
+      let doLintAsync f = async { return (doLint f).ExitCode }
+
+      let throttle x = Async.Parallel (x, System.Environment.ProcessorCount)
+
+      let failOnIssuesFound (issuesFound: bool) =
+        Assert.That(issuesFound, Is.False, "Lint issues were found")
+
+      [ !! "./**/*.fsproj"
+        |> Seq.sortBy (Path.GetFileName)
+        !! "./Build/*.fsx" |> Seq.map Path.GetFullPath ]
+      |> Seq.concat
+      |> Seq.map doLintAsync
+      |> throttle
+      |> Async.RunSynchronously
+      |> Seq.exists (fun x -> x <> 0)
+      |> failOnIssuesFound
+      )
+
+  //let failOnIssuesFound (issuesFound : bool) =
+  //  Assert.That(issuesFound, Is.False, "Lint issues were found")
+  //let options =
+  //  { Lint.OptionalLintParameters.Default with
+  //      Configuration = FromFile(Path.getFullName "./fsharplint.json") }
+
+  //!!"**/*.fsproj"
+  //|> Seq.collect (fun n -> !!(Path.GetDirectoryName n @@ "*.fs"))
+  //|> Seq.distinct
+  //|> Seq.map (fun f ->
+  //     match Lint.lintFile options f with
+  //     | Lint.LintResult.Failure x -> failwithf "%A" x
+  //     | Lint.LintResult.Success w -> w)
+  //|> Seq.concat
+  //|> Seq.fold (fun _ x ->
+  //     printfn "Info: %A\r\n Range: %A\r\n Fix: %A\r\n====" x.Details.Message
+  //       x.Details.Range x.Details.SuggestedFix
+  //     true) false
+  //|> failOnIssuesFound)
 
 _Target "Gendarme" (fun _ -> // Needs debug because release is compiled --standalone which contaminates everything
 
@@ -320,15 +340,16 @@ _Target "Gendarme" (fun _ -> // Needs debug because release is compiled --standa
   |> Seq.iter (fun (ruleset, files) ->
        Gendarme.run
          { Gendarme.Params.Create() with
-             WorkingDirectory = "."
-             Severity = Gendarme.Severity.All
-             Confidence = Gendarme.Confidence.All
-             Configuration = ruleset
-             Console = true
-             Log = "./_Reports/gendarme.html"
-             LogKind = Gendarme.LogKind.Html
-             ToolType = ToolType.CreateLocalTool().WithDotNetOptions(dotnetOptions) 
-             Targets = files }))
+                          WorkingDirectory = "."
+                          Severity = Gendarme.Severity.All
+                          Confidence = Gendarme.Confidence.All
+                          Configuration = ruleset
+                          Console = true
+                          Log = "./_Reports/gendarme.html"
+                          LogKind = Gendarme.LogKind.Html
+                          Targets = files
+                          ToolType = ToolType.CreateLocalTool()
+                          FailBuildOnDefect = true }))
 
 _Target "FxCop" (fun _ -> // Needs debug because release is compiled --standalone which contaminates everything
 
@@ -377,13 +398,29 @@ _Target "UnitTest" (fun _ ->
 _Target "JustUnitTest" (fun _ ->
   Directory.ensure "./_Reports"
   try
-    !!(@"_Binaries/*tests/Debug+x86/net4*/*tests.dll")
-    |> NUnit3.run (fun p ->
-         { p with
-             ToolPath = nunitConsole
-             Force32bit = true
-             WorkingDir = "."
-             ResultSpecs = [ "./_Reports/JustUnitTestReport.xml" ] })
+    let doTest f =
+      CreateProcess.fromRawCommand nunitConsole
+                                   ["--noheader"
+                                    "--x86"
+                                    "--work=."
+                                    "--result=./_Reports/JustUnitTestReport.xml"
+                                    f
+                                   ]
+      |> CreateProcess.ensureExitCodeWithMessage "Test issues were found"
+      |> Proc.run
+
+    let result = @"_Binaries\altcode.dixon.tests\Debug+x86\net472\altcode.dixon.tests.dll"
+                 |> Path.GetFullPath
+                 |> doTest
+    Assert.That(result.ExitCode, Is.EqualTo 0)
+
+    //!!(@"_Binaries/*tests/Debug+x86/net4*/*tests.dll")
+    //|> NUnit3.run (fun p ->
+    //     { p with
+    //         ToolPath = nunitConsole
+    //         Force32bit = true
+    //         WorkingDir = "."
+    //         ResultSpecs = [ "./_Reports/JustUnitTestReport.xml" ] })
   with x ->
     printfn "%A" x
     reraise())
@@ -405,7 +442,7 @@ _Target "UnitTestWithAltCover" (fun _ ->
   let prep =
     AltCover.PrepareOptions.Primitive
       ({ Primitive.PrepareOptions.Create() with
-           XmlReport = altReport
+           Report = altReport
            InputDirectories = indir
            OutputDirectories = outdir
            StrongNameKey = keyfile
@@ -416,21 +453,33 @@ _Target "UnitTestWithAltCover" (fun _ ->
     |> AltCoverCommand.Prepare
   { AltCoverCommand.Options.Create prep with
       ToolPath = altcover
-      ToolType = framework_altcover
+      ToolType = frameworkAltcover
       WorkingDirectory = "." }
   |> AltCoverCommand.run
+
+  let doTest f =
+     CreateProcess.fromRawCommand nunitConsole
+                                  ["--noheader"
+                                   "--x86"
+                                   "--work=."
+                                   "--result=./_Reports/UnitTestWithAltCoverReport.xml"
+                                   f
+                                  ]
+    |> CreateProcess.ensureExitCodeWithMessage "Test issues were found"
+    |> Proc.run
+
+  let failOnIssuesFound (issuesFound: bool) =
+    Assert.That(issuesFound, Is.False, "Test issues were found")
 
   printfn "Unit test the instrumented code"
   try
     outdir
     |> Seq.collect (fun d -> !!(d @@ "*tests.dll"))
     |> Seq.distinct
-    |> NUnit3.run (fun p ->
-         { p with
-             ToolPath = nunitConsole
-             Force32bit = true
-             WorkingDir = "."
-             ResultSpecs = [ "./_Reports/UnitTestWithAltCoverReport.xml" ] })
+    |> Seq.map (Path.GetFullPath >> doTest)
+    |> Seq.exists (fun x -> x.ExitCode <> 0)
+    |> failOnIssuesFound
+
   with x ->
     printfn "%A" x
     reraise()
@@ -482,14 +531,12 @@ _Target "Packaging" (fun _ ->
              Copyright = (!Copyright).Replace("©", "(c)")
              Publish = false
              ReleaseNotes = Path.getFullName "ReleaseNotes.md" |> File.ReadAllText
-             ToolPath =
-
-               ("./packages/" + (packageVersion "NuGet.CommandLine") + "/tools/NuGet.exe")
+             ToolPath = "_Binaries/NuPacker/Debug+AnyCPU/net472/NuPacker.exe"
                |> Path.getFullName }) nuspec))
 
-_Target "PrepareFrameworkBuild" (fun _ -> ())
+_Target "PrepareFrameworkBuild" ignore
 
-_Target "PrepareDotNetBuild" (fun _ -> ())
+_Target "PrepareDotNetBuild" ignore
 
 _Target "PrepareReadMe" (fun _ ->
   Actions.PrepareReadMe
