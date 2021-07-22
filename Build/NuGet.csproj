@@ -6,7 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="NuPacker\**" />
+    <EmbeddedResource Remove="NuPacker\**" />
     <None Remove="*.*" />
+    <None Remove="NuPacker\**" />
   </ItemGroup>
 
   <ItemGroup>
