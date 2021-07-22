@@ -398,13 +398,29 @@ _Target "UnitTest" (fun _ ->
 _Target "JustUnitTest" (fun _ ->
   Directory.ensure "./_Reports"
   try
-    !!(@"_Binaries/*tests/Debug+AnyCPU/net4*/*tests.dll")
-    |> NUnit3.run (fun p ->
-         { p with
-             ToolPath = nunitConsole
-             Force32bit = true
-             WorkingDir = "."
-             ResultSpecs = [ "./_Reports/JustUnitTestReport.xml" ] })
+    let doTest f =
+      CreateProcess.fromRawCommand nunitConsole
+                                   ["--noheader"
+                                    "--x86"
+                                    "--work=."
+                                    "--result=./_Reports/JustUnitTestReport.xml"
+                                    f
+                                   ]
+      |> CreateProcess.ensureExitCodeWithMessage "Test issues were found"
+      |> Proc.run
+
+    let result = @"_Binaries\altcode.dixon.tests\Debug+AnyCPU\net472\altcode.dixon.tests.dll"
+                 |> Path.GetFullPath
+                 |> doTest
+    Assert.That(result.ExitCode, Is.EqualTo 0)
+
+    //!!(@"_Binaries/*tests/Debug+AnyCPU/net4*/*tests.dll")
+    //|> NUnit3.run (fun p ->
+    //     { p with
+    //         ToolPath = nunitConsole
+    //         Force32bit = true
+    //         WorkingDir = "."
+    //         ResultSpecs = [ "./_Reports/JustUnitTestReport.xml" ] })
   with x ->
     printfn "%A" x
     reraise())
@@ -437,17 +453,29 @@ _Target "UnitTestWithAltCover" (fun _ ->
       WorkingDirectory = "." }
   |> AltCoverCommand.run
 
+  let doTest f =
+     CreateProcess.fromRawCommand nunitConsole
+                                  ["--noheader"
+                                   "--x86"
+                                   "--work=."
+                                   "--result=./_Reports/UnitTestWithAltCoverReport.xml"
+                                   f
+                                  ]
+    |> CreateProcess.ensureExitCodeWithMessage "Test issues were found"
+    |> Proc.run
+
+  let failOnIssuesFound (issuesFound: bool) =
+    Assert.That(issuesFound, Is.False, "Test issues were found")
+
   printfn "Unit test the instrumented code"
   try
     outdir
     |> Seq.collect (fun d -> !!(d @@ "*tests.dll"))
     |> Seq.distinct
-    |> NUnit3.run (fun p ->
-         { p with
-             ToolPath = nunitConsole
-             Force32bit = true
-             WorkingDir = "."
-             ResultSpecs = [ "./_Reports/UnitTestWithAltCoverReport.xml" ] })
+    |> Seq.map (Path.GetFullPath >> doTest)
+    |> Seq.exists (fun x -> x.ExitCode <> 0)
+    |> failOnIssuesFound
+
   with x ->
     printfn "%A" x
     reraise()
