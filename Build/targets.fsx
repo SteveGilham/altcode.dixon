@@ -23,8 +23,8 @@ open Fake.IO.Globbing
 open Fake.IO.Globbing.Operators
 open Fake.Tools.Git
 
-open FSharpLint.Application
-open FSharpLint.Framework
+//open FSharpLint.Application
+//open FSharpLint.Framework
 
 open NUnit.Framework
 
@@ -108,7 +108,7 @@ let altcover =
   ("./packages/" + (packageVersion "altcover") + "/tools/net472/AltCover.exe")
   |> Path.getFullName
 
-let framework_altcover = Fake.DotNet.ToolType.CreateFullFramework()
+let frameworkAltcover = Fake.DotNet.ToolType.CreateFullFramework()
 
 let misses = ref 0
 
@@ -286,25 +286,49 @@ _Target "BuildDebug" (fun _ -> "./altcode.dixon.sln" |> msbuildDebug)
 _Target "Analysis" ignore
 
 _Target "Lint" (fun _ ->
-  let failOnIssuesFound (issuesFound : bool) =
-    Assert.That(issuesFound, Is.False, "Lint issues were found")
-  let options =
-    { Lint.OptionalLintParameters.Default with
-        Configuration = FromFile(Path.getFullName "./fsharplint.json") }
+      let cfg = Path.getFullName "./fsharplint.json"
 
-  !!"**/*.fsproj"
-  |> Seq.collect (fun n -> !!(Path.GetDirectoryName n @@ "*.fs"))
-  |> Seq.distinct
-  |> Seq.map (fun f ->
-       match Lint.lintFile options f with
-       | Lint.LintResult.Failure x -> failwithf "%A" x
-       | Lint.LintResult.Success w -> w)
-  |> Seq.concat
-  |> Seq.fold (fun _ x ->
-       printfn "Info: %A\r\n Range: %A\r\n Fix: %A\r\n====" x.Details.Message
-         x.Details.Range x.Details.SuggestedFix
-       true) false
-  |> failOnIssuesFound)
+      let doLint f =
+        CreateProcess.fromRawCommand "dotnet" ["fsharplint"; "lint";  "-l"; cfg ; f]
+        |> CreateProcess.ensureExitCodeWithMessage "Lint issues were found"
+        |> Proc.run
+      let doLintAsync f = async { return (doLint f).ExitCode }
+
+      let throttle x = Async.Parallel (x, System.Environment.ProcessorCount)
+
+      let failOnIssuesFound (issuesFound: bool) =
+        Assert.That(issuesFound, Is.False, "Lint issues were found")
+
+      [ !! "./**/*.fsproj"
+        |> Seq.sortBy (Path.GetFileName)
+        !! "./Build/*.fsx" |> Seq.map Path.GetFullPath ]
+      |> Seq.concat
+      |> Seq.map doLintAsync
+      |> throttle
+      |> Async.RunSynchronously
+      |> Seq.exists (fun x -> x <> 0)
+      |> failOnIssuesFound
+      )
+
+  //let failOnIssuesFound (issuesFound : bool) =
+  //  Assert.That(issuesFound, Is.False, "Lint issues were found")
+  //let options =
+  //  { Lint.OptionalLintParameters.Default with
+  //      Configuration = FromFile(Path.getFullName "./fsharplint.json") }
+
+  //!!"**/*.fsproj"
+  //|> Seq.collect (fun n -> !!(Path.GetDirectoryName n @@ "*.fs"))
+  //|> Seq.distinct
+  //|> Seq.map (fun f ->
+  //     match Lint.lintFile options f with
+  //     | Lint.LintResult.Failure x -> failwithf "%A" x
+  //     | Lint.LintResult.Success w -> w)
+  //|> Seq.concat
+  //|> Seq.fold (fun _ x ->
+  //     printfn "Info: %A\r\n Range: %A\r\n Fix: %A\r\n====" x.Details.Message
+  //       x.Details.Range x.Details.SuggestedFix
+  //     true) false
+  //|> failOnIssuesFound)
 
 _Target "Gendarme" (fun _ -> // Needs debug because release is compiled --standalone which contaminates everything
 
@@ -316,14 +340,16 @@ _Target "Gendarme" (fun _ -> // Needs debug because release is compiled --standa
   |> Seq.iter (fun (ruleset, files) ->
        Gendarme.run
          { Gendarme.Params.Create() with
-             WorkingDirectory = "."
-             Severity = Gendarme.Severity.All
-             Confidence = Gendarme.Confidence.All
-             Configuration = ruleset
-             Console = true
-             Log = "./_Reports/gendarme.html"
-             LogKind = Gendarme.LogKind.Html
-             Targets = files }))
+                          WorkingDirectory = "."
+                          Severity = Gendarme.Severity.All
+                          Confidence = Gendarme.Confidence.All
+                          Configuration = ruleset
+                          Console = true
+                          Log = "./_Reports/gendarme.html"
+                          LogKind = Gendarme.LogKind.Html
+                          Targets = files
+                          ToolType = ToolType.CreateLocalTool()
+                          FailBuildOnDefect = true }))
 
 _Target "FxCop" (fun _ -> // Needs debug because release is compiled --standalone which contaminates everything
 
@@ -397,7 +423,7 @@ _Target "UnitTestWithAltCover" (fun _ ->
   let prep =
     AltCover.PrepareOptions.Primitive
       ({ Primitive.PrepareOptions.Create() with
-           XmlReport = altReport
+           Report = altReport
            InputDirectories = indir
            OutputDirectories = outdir
            StrongNameKey = keyfile
@@ -407,7 +433,7 @@ _Target "UnitTestWithAltCover" (fun _ ->
     |> AltCoverCommand.Prepare
   { AltCoverCommand.Options.Create prep with
       ToolPath = altcover
-      ToolType = framework_altcover
+      ToolType = frameworkAltcover
       WorkingDirectory = "." }
   |> AltCoverCommand.run
 
@@ -478,9 +504,9 @@ _Target "Packaging" (fun _ ->
                ("./packages/" + (packageVersion "NuGet.CommandLine") + "/tools/NuGet.exe")
                |> Path.getFullName }) nuspec))
 
-_Target "PrepareFrameworkBuild" (fun _ -> ())
+_Target "PrepareFrameworkBuild" ignore
 
-_Target "PrepareDotNetBuild" (fun _ -> ())
+_Target "PrepareDotNetBuild" ignore
 
 _Target "PrepareReadMe" (fun _ ->
   Actions.PrepareReadMe

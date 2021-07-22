@@ -80,7 +80,7 @@ type ReraiseCorrectlyRule =
                       true)
             then
               self.Problems.Add
-                (new Problem(self.GetNamedResolution("preserveStackDetails")))
+                (Problem(self.GetNamedResolution("preserveStackDetails")))
 
           else
             self.VisitBlock(fn.Body)
@@ -94,7 +94,7 @@ type ReraiseCorrectlyRule =
       match expression.NodeType with
       | NodeType.Construct -> ()
       | _ ->
-          self.Problems.Add(new Problem(self.GetNamedResolution("preserveStackDetails")))
+          self.Problems.Add(Problem(self.GetNamedResolution("preserveStackDetails")))
 
     override self.VisitThrow(throwInstruction : ThrowNode) =
       match throwInstruction.NodeType with
@@ -114,4 +114,3 @@ type ReraiseCorrectlyRule =
 
       base.VisitExpression(expression)
   end
-

@@ -53,7 +53,7 @@ type JustifySuppressionRule =
 
     member private self.Violation context =
       self.Problems.Add
-        (new Problem(self.GetNamedResolution
+            (Problem(self.GetNamedResolution
                        ("justificationAbsent",
 
                         // Extract an appropriate string
