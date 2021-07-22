@@ -499,9 +499,7 @@ _Target "Packaging" (fun _ ->
              Copyright = (!Copyright).Replace("©", "(c)")
              Publish = false
              ReleaseNotes = Path.getFullName "ReleaseNotes.md" |> File.ReadAllText
-             ToolPath =
-
-               ("./packages/" + (packageVersion "NuGet.CommandLine") + "/tools/NuGet.exe")
+             ToolPath = "_Binaries/NuPacker/Debug+AnyCPU/net472/NuPacker.exe"
                |> Path.getFullName }) nuspec))
 
 _Target "PrepareFrameworkBuild" ignore
