@@ -28,14 +28,23 @@
 
   <ItemGroup>
     <Reference Include="FxCopCmd">
-      <HintPath>..\..\altcode.dixon-pre\packages\fxcop\FxCopCmd.exe</HintPath>
+      <HintPath>..\packages\fxcop\FxCopCmd.exe</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Cci">
+      <HintPath>..\packages\fxcop\Microsoft.Cci.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.CodeAnalysis">
       <HintPath>..\packages\fxcop\Microsoft.VisualStudio.CodeAnalysis.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.CodeAnalysis.Common">
-      <HintPath>..\..\altcode.dixon-pre\packages\fxcop\Microsoft.VisualStudio.CodeAnalysis.Common.dll</HintPath>
+      <HintPath>..\packages\fxcop\Microsoft.VisualStudio.CodeAnalysis.Common.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="5.0.1">
+      <ExcludeAssets>contentfiles</ExcludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
