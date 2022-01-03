@@ -57,7 +57,9 @@ module Exceptions =
     let ruleUnderTest = ReraiseCorrectlyRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
-    Assert.That(problems.Count, Is.EqualTo(0))
+    Assert.That(problems.Count, Is.EqualTo(1))
+    let problem = problems.[0].Resolution
+    Assert.That(problem.Name, Is.EqualTo("preserveStackDetails"))
 
   [<Test>]
   let JustRaise1Test() =

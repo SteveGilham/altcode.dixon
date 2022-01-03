@@ -400,29 +400,14 @@ _Target "UnitTest" (fun _ ->
 _Target "JustUnitTest" (fun _ ->
   Directory.ensure "./_Reports"
   try
-    let doTest f =
-      CreateProcess.fromRawCommand nunitConsole
-                                   ["--noheader"
-                                    "--x86"
-                                    "--work=."
-                                    "--result=./_Reports/JustUnitTestReport.xml"
-                                    f
-                                   ]
-      |> CreateProcess.ensureExitCodeWithMessage "Test issues were found"
-      |> Proc.run
+    let recArgs =
+      [ "--noheader"
+        "--x86"
+        "--work=."
+        "--result=./_Reports/JustUnitTestReport.xml"
+        Path.getFullName "_Binaries/altcode.dixon.tests/Debug+AnyCPU/net472/altcode.dixon.tests.dll" ]
 
-    let result = @"_Binaries\altcode.dixon.tests\Debug+AnyCPU\net472\altcode.dixon.tests.dll"
-                 |> Path.GetFullPath
-                 |> doTest
-    Assert.That(result.ExitCode, Is.EqualTo 0)
-
-    //!!(@"_Binaries/*tests/Debug+AnyCPU/net4*/*tests.dll")
-    //|> NUnit3.run (fun p ->
-    //     { p with
-    //         ToolPath = nunitConsole
-    //         Force32bit = true
-    //         WorkingDir = "."
-    //         ResultSpecs = [ "./_Reports/JustUnitTestReport.xml" ] })
+    Actions.Run(nunitConsole, ".", recArgs) "Recorder NUnit failed"
   with x ->
     printfn "%A" x
     reraise())
@@ -455,28 +440,18 @@ _Target "UnitTestWithAltCover" (fun _ ->
       WorkingDirectory = "." }
   |> AltCoverCommand.run
 
-  let doTest f =
-     CreateProcess.fromRawCommand nunitConsole
-                                  ["--noheader"
-                                   "--x86"
-                                   "--work=."
-                                   "--result=./_Reports/UnitTestWithAltCoverReport.xml"
-                                   f
-                                  ]
-    |> CreateProcess.ensureExitCodeWithMessage "Test issues were found"
-    |> Proc.run
-
-  let failOnIssuesFound (issuesFound: bool) =
-    Assert.That(issuesFound, Is.False, "Test issues were found")
-
   printfn "Unit test the instrumented code"
   try
-    outdir
-    |> Seq.collect (fun d -> !!(d @@ "*tests.dll"))
-    |> Seq.distinct
-    |> Seq.map (Path.GetFullPath >> doTest)
-    |> Seq.exists (fun x -> x.ExitCode <> 0)
-    |> failOnIssuesFound
+    let baseArgs =
+        [ "--noheader"
+          "--work=."
+          "--x86"
+          "--result=./_Reports/UnitTestWithAltCoverReport.xml"
+          // TODO generalise
+          Path.getFullName "_Binaries/altcode.dixon.tests/Debug+AnyCPU/net472/__UnitTestWithAltCover/altcode.dixon.tests.dll" ]
+
+    Actions.Run(nunitConsole, ".", baseArgs) "Main NUnit failed"
+
 
   with x ->
     printfn "%A" x
@@ -529,8 +504,11 @@ _Target "Packaging" (fun _ ->
              Copyright = (!Copyright).Replace("©", "(c)")
              Publish = false
              ReleaseNotes = Path.getFullName "ReleaseNotes.md" |> File.ReadAllText
-             ToolPath = "_Binaries/NuPacker/Debug+AnyCPU/net472/NuPacker.exe"
-               |> Path.getFullName }) nuspec))
+             ToolPath =
+                ("./packages/"
+                  + (packageVersion "NuGet.CommandLine")
+                  + "/tools/NuGet.exe")
+                |> Path.getFullName }) nuspec))
 
 _Target "PrepareFrameworkBuild" ignore
 

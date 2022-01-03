@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29905.134
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "altcode.dixon", "altcode.dixon\altcode.dixon.fsproj", "{E03BA4A3-F4DE-4D99-B771-78637706B9F7}"
 EndProject
@@ -9,10 +9,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildItems", "BuildItems", 
 	ProjectSection(SolutionItems) = preProject
 		Build\actions.fsx = Build\actions.fsx
 		Build\altcode.dixon.nuspec = Build\altcode.dixon.nuspec
+		appveyor.yml = appveyor.yml
 		Build\build.fsx = Build\build.fsx
 		Build\common-rules.xml = Build\common-rules.xml
 		.config\dotnet-tools.json = .config\dotnet-tools.json
+		global.json = global.json
 		Build\Infrastructure.snk = Build\Infrastructure.snk
+		.github\workflows\main.yml = .github\workflows\main.yml
 		Build\setup.fsx = Build\setup.fsx
 		Build\targets.fsx = Build\targets.fsx
 	EndProjectSection
@@ -23,7 +26,7 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "altcode.dixon.tests", "altc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "altcode.dixon.testdata", "altcode.dixon.testdata\altcode.dixon.testdata.csproj", "{AE84B091-CDA3-4E60-B743-5CFCDC9C9569}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FixCop", "FixCop\FixCop.fsproj", "{39489D32-48AB-46B0-968A-244BF11EB5BC}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FixCop", "FixCop\FixCop.fsproj", "{39489D32-48AB-46B0-968A-244BF11EB5BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,7 +39,6 @@ Global
 		{E03BA4A3-F4DE-4D99-B771-78637706B9F7}.Release|Any CPU.ActiveCfg = Release|x86
 		{E03BA4A3-F4DE-4D99-B771-78637706B9F7}.Release|Any CPU.Build.0 = Release|x86
 		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{225910EA-70DA-442C-8856-F7D17AC1AF88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D77A8B0-F865-424B-9841-9EFCE086285C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1D77A8B0-F865-424B-9841-9EFCE086285C}.Debug|Any CPU.Build.0 = Debug|Any CPU
@@ -54,7 +56,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{225910EA-70DA-442C-8856-F7D17AC1AF88} = {E65D4060-66F4-4A20-9116-8442901F7FB2}
-		{74B602BA-2A35-44C0-A9D2-A37209307DF5} = {E65D4060-66F4-4A20-9116-8442901F7FB2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {34CA1585-1D7B-4153-98CE-826D630863DC}
