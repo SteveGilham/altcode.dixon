@@ -147,6 +147,7 @@ let msbuildRelease proj =
         ConsoleLogParameters = []
         DistributedLoggers = None
         DisableInternalBinLog = true
+        DoRestore = true
         Properties =
           [ "Configuration", "Release"
             "DebugSymbols", "True" ] }) proj
@@ -158,6 +159,7 @@ let msbuildDebug proj =
         ConsoleLogParameters = []
         DistributedLoggers = None
         DisableInternalBinLog = true
+        DoRestore = true
         Properties =
           [ "Configuration", "Debug"
             "DebugSymbols", "True" ] }) proj
@@ -479,7 +481,6 @@ _Target "Packaging" (fun _ ->
 
   let productFiles =
     [ (productDir @@ "AltCode.Dixon.dll", Some "Rules", None)
-      (productDir @@ "AltCode.Dixon.pdb", Some "Rules", None)
       (Path.getFullName "./LICENS*", Some "", None)
       (Path.getFullName "./Dixon_128.*g", Some "", None)
       (packable, Some "", None) ]

@@ -23,8 +23,7 @@ module Justifications =
 
   [<Test>]
   let NoJustificationTest () =
-    let subject =
-      new AltCode.Dixon.TestData.Justifications()
+    let subject = AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
@@ -39,8 +38,7 @@ module Justifications =
 
   [<Test>]
   let BlankJustificationTest () =
-    let subject =
-      new AltCode.Dixon.TestData.Justifications()
+    let subject = AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
@@ -56,8 +54,7 @@ module Justifications =
 
   [<Test>]
   let ShortJustificationTest () =
-    let subject =
-      new AltCode.Dixon.TestData.Justifications()
+    let subject = AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
@@ -73,8 +70,7 @@ module Justifications =
 
   [<Test>]
   let EnoughJustificationTest () =
-    let subject =
-      new AltCode.Dixon.TestData.Justifications()
+    let subject = AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
@@ -88,8 +84,7 @@ module Justifications =
 
   [<Test>]
   let NoSuppressionTest () =
-    let subject =
-      new AltCode.Dixon.TestData.Justifications()
+    let subject = AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
@@ -102,8 +97,7 @@ module Justifications =
 
   [<Test>]
   let NoSuppressionTypeTest () =
-    let subject =
-      new AltCode.Dixon.TestData.Justifications()
+    let subject = AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
@@ -113,8 +107,7 @@ module Justifications =
 
   [<Test>]
   let NoSuppressionParameterTest () =
-    let subject =
-      new AltCode.Dixon.TestData.Justifications()
+    let subject = AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
@@ -131,8 +124,7 @@ module Justifications =
 
   [<Test>]
   let BlankAssemblyJustificationTest () =
-    let subject =
-      new AltCode.Dixon.TestData.Justifications()
+    let subject = AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 

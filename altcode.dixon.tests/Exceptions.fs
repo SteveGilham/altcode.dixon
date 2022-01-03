@@ -9,7 +9,7 @@ open AltCode.Dixon.Design
 module Exceptions =
   [<Test>]
   let JustThrowTest () =
-    let subject = new AltCode.Dixon.TestData.Exceptions()
+    let subject = AltCode.Dixon.TestData.Exceptions()
     let subjectNode = Utilities.GetType subject
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail1"
@@ -21,7 +21,7 @@ module Exceptions =
 
   [<Test>]
   let NoReThrowTest () =
-    let subject = new AltCode.Dixon.TestData.Exceptions()
+    let subject = AltCode.Dixon.TestData.Exceptions()
     let subjectNode = Utilities.GetType subject
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail2"
@@ -102,7 +102,7 @@ module Exceptions =
 
   [<Test>]
   let SafeReThrowTest () =
-    let subject = new AltCode.Dixon.TestData.Exceptions()
+    let subject = AltCode.Dixon.TestData.Exceptions()
     let subjectNode = Utilities.GetType subject
 
     let offendingMethod =
