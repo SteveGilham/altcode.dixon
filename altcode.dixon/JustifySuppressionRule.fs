@@ -15,54 +15,62 @@ type JustifySuppressionRule =
 
     // Default constructor as required
     new() =
-      { inherit BaseIntrospectionRule("JustifySuppression", "altcode.dixon.Dixon.Design",
+      { inherit BaseIntrospectionRule("JustifySuppression",
+                                      "altcode.dixon.Dixon.Design",
                                       typeof<JustifySuppressionRule>.Assembly) }
 
     // Overrides of every Check method
-    override self.Check(``type`` : TypeNode) =
+    override self.Check(``type``: TypeNode) =
       self.VerifyAttributes ``type``.Attributes ``type``
 
-    override self.Check(``member`` : Member) =
+    override self.Check(``member``: Member) =
       self.VerifyAttributes ``member``.Attributes ``member``
 
-    override self.Check(``module`` : ModuleNode) =
+    override self.Check(``module``: ModuleNode) =
       self.VerifyAttributes ``module``.Attributes ``module``
 
-    override self.Check(parameter : Parameter) =
+    override self.Check(parameter: Parameter) =
       self.VerifyAttributes parameter.Attributes parameter
 
     // Common code to scan each node for its attributes and check justifications
-    member private self.VerifyAttributes attributes (context : Node) =
+    member private self.VerifyAttributes attributes (context: Node) =
       attributes
       |> Seq.cast<AttributeNode>
       |> Seq.filter
            (fun attribute -> attribute.Type = FrameworkTypes.SuppressMessageAttribute)
       |> Seq.iter (self.CheckJustification context)
+
       self.Problems
 
     // Separates sheep from goats so far as Justification strings go
-    member private self.CheckJustification context (attribute : AttributeNode) =
+    member private self.CheckJustification context (attribute: AttributeNode) =
       match attribute.GetNamedArgument(Identifier.For("Justification")) with
       | :? Literal as lit ->
-          match lit.Value :?> string with
-          | y when String.IsNullOrWhiteSpace(y) -> self.Violation context
-          | x when x.Trim().Length < 10 -> self.Violation context
-          | _ -> ()
+        match lit.Value :?> string with
+        | y when String.IsNullOrWhiteSpace(y) -> self.Violation context
+        | x when x.Trim().Length < 10 -> self.Violation context
+        | _ -> ()
 
       | _ -> self.Violation context
 
     member private self.Violation context =
-      self.Problems.Add
-            (Problem(self.GetNamedResolution
-                       ("justificationAbsent",
+      self.Problems.Add(
+        Problem(
+          self.GetNamedResolution(
+            "justificationAbsent",
 
-                        // Extract an appropriate string
-                        match context with
-                        | :? Member as m -> m.FullName // Method or Type
-                        | :? Parameter as p ->
-                            p.Name.ToString() + " of " + p.DeclaringMethod.FullName
-                        | :? ModuleNode as o -> o.Name
-                        | q -> q.ToString() // Not reachable
+            // Extract an appropriate string
+            match context with
+            | :? Member as m -> m.FullName // Method or Type
+            | :? Parameter as p ->
+              p.Name.ToString()
+              + " of "
+              + p.DeclaringMethod.FullName
+            | :? ModuleNode as o -> o.Name
+            | q -> q.ToString() // Not reachable
 
-                       ), context))
+          ),
+          context
+        )
+      )
   end

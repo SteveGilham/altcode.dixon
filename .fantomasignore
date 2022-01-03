@@ -1,0 +1,2 @@
+# Ignore interfaces (documentation annotations)
+*.fsi

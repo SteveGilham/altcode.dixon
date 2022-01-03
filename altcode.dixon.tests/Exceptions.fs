@@ -8,7 +8,7 @@ open AltCode.Dixon.Design
 
 module Exceptions =
   [<Test>]
-  let JustThrowTest() =
+  let JustThrowTest () =
     let subject = new AltCode.Dixon.TestData.Exceptions()
     let subjectNode = Utilities.GetType subject
 
@@ -20,7 +20,7 @@ module Exceptions =
     Assert.That(problems.Count, Is.EqualTo(0))
 
   [<Test>]
-  let NoReThrowTest() =
+  let NoReThrowTest () =
     let subject = new AltCode.Dixon.TestData.Exceptions()
     let subjectNode = Utilities.GetType subject
 
@@ -33,13 +33,15 @@ module Exceptions =
     let problem = problems.[0].Resolution
     Assert.That(problem.Name, Is.EqualTo("preserveStackDetails"))
 
-  let myType() =
-    let assembly = AssemblyNode.GetAssembly(Assembly.GetExecutingAssembly().Location)
+  let myType () =
+    let assembly =
+      AssemblyNode.GetAssembly(Assembly.GetExecutingAssembly().Location)
+
     assembly.GetType(Identifier.For("AltCode.Dixon.Tests"), Identifier.For("Exceptions"))
 
   [<Test>]
-  let JustRaiseTest() =
-    let subjectNode = myType()
+  let JustRaiseTest () =
+    let subjectNode = myType ()
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail"
 
@@ -49,8 +51,8 @@ module Exceptions =
     Assert.That(problems.Count, Is.EqualTo(0))
 
   [<Test>]
-  let JustRaise0Test() =
-    let subjectNode = myType()
+  let JustRaise0Test () =
+    let subjectNode = myType ()
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail0"
 
@@ -62,8 +64,8 @@ module Exceptions =
     Assert.That(problem.Name, Is.EqualTo("preserveStackDetails"))
 
   [<Test>]
-  let JustRaise1Test() =
-    let subjectNode = myType()
+  let JustRaise1Test () =
+    let subjectNode = myType ()
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail1"
 
@@ -73,8 +75,8 @@ module Exceptions =
     Assert.That(problems.Count, Is.EqualTo(0))
 
   [<Test>]
-  let NoReRaiseTest() =
-    let subjectNode = myType()
+  let NoReRaiseTest () =
+    let subjectNode = myType ()
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail2"
 
@@ -86,8 +88,8 @@ module Exceptions =
     Assert.That(problem.Name, Is.EqualTo("preserveStackDetails"))
 
   [<Test>]
-  let NoReRaiseTest2() =
-    let subjectNode = myType()
+  let NoReRaiseTest2 () =
+    let subjectNode = myType ()
 
     let offendingMethod = Utilities.GetMethod subjectNode "Fail3"
 
@@ -99,11 +101,12 @@ module Exceptions =
     Assert.That(problem.Name, Is.EqualTo("preserveStackDetails"))
 
   [<Test>]
-  let SafeReThrowTest() =
+  let SafeReThrowTest () =
     let subject = new AltCode.Dixon.TestData.Exceptions()
     let subjectNode = Utilities.GetType subject
 
-    let offendingMethod = Utilities.GetMethod subjectNode "FailSafe"
+    let offendingMethod =
+      Utilities.GetMethod subjectNode "FailSafe"
 
     let ruleUnderTest = ReraiseCorrectlyRule()
     let problems = ruleUnderTest.Check(offendingMethod)
@@ -111,39 +114,43 @@ module Exceptions =
     Assert.That(problems.Count, Is.EqualTo(0))
 
   [<Test>]
-  let SafeReRaiseTest() =
-    let subjectNode = myType()
+  let SafeReRaiseTest () =
+    let subjectNode = myType ()
 
-    let offendingMethod = Utilities.GetMethod subjectNode "FailSafe"
+    let offendingMethod =
+      Utilities.GetMethod subjectNode "FailSafe"
 
     let ruleUnderTest = ReraiseCorrectlyRule()
     let problems = ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
 
-  let Fail() = raise (InvalidOperationException())
+  let Fail () = raise (InvalidOperationException())
 
-  let Fail0() = InvalidOperationException() |> raise
+  let Fail0 () = InvalidOperationException() |> raise
 
-  let Fail1() = raise <| InvalidOperationException()
+  let Fail1 () = raise <| InvalidOperationException()
 
-  let Fail2() =
+  let Fail2 () =
     try
       Fail0()
-    with x ->
+    with
+    | x ->
       printfn "%A" x
       x |> raise
 
-  let Fail3() =
+  let Fail3 () =
     try
       Fail1()
-    with x ->
+    with
+    | x ->
       printfn "%A" x
       raise x
 
-  let FailSafe() =
+  let FailSafe () =
     try
       Fail1()
-    with x ->
+    with
+    | x ->
       printfn "%A" x
-      reraise()
+      reraise ()
