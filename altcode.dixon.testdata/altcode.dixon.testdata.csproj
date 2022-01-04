@@ -4,6 +4,8 @@
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
     <DocumentationFile />
     <NoWarn>CA2200</NoWarn>
+    <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
+    <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

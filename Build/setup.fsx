@@ -60,7 +60,8 @@ let restore (o : RestorePackageParams) = { o with ToolPath = nuget }
 
 let fxcop =
   BlackFox.VsWhere.VsInstances.getAll()
-  |> Seq.filter (fun i -> System.Version(i.InstallationVersion).Major = 17)
+  |> Seq.filter (fun i -> System.Version(i.InstallationVersion).Major > 15) // 2019 or later
+  |> Seq.sortByDescending (fun i -> System.Version(i.InstallationVersion))
   |> Seq.map (fun i -> i.InstallationPath @@ "Team Tools/Static Analysis Tools/FxCop")
   |> Seq.filter Directory.Exists
   |> Seq.head

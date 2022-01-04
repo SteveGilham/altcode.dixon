@@ -7,8 +7,9 @@ open System.Collections.Generic
 
 [<EntryPoint>]
 let main argv =
-  let plat = argv
-            |> Seq.find (fun a -> a.StartsWith("/plat"))
+  let plat =
+    argv |> Seq.find (fun a -> a.StartsWith("/plat"))
+
   let platformPath = plat.Substring(plat.IndexOf(':') + 1)
 
   let here = Assembly.GetExecutingAssembly().Location
@@ -120,17 +121,22 @@ let main argv =
     )
 
   // interesting platform assemblies
-  let netstd21 = Path.Combine(platformPath, "netstandard.dll")
+  let netstd21 =
+    Path.Combine(platformPath, "netstandard.dll")
+
   let netstdlib21 = netstd21 |> AssemblyName.GetAssemblyName
 
-  let core = Path.Combine(platformPath, "System.Private.CoreLib.dll")
+  let core =
+    Path.Combine(platformPath, "System.Private.CoreLib.dll")
 
   let corelib =
     AssemblyName(
       "System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e"
     )
 
-  let netstd20 = @"C:\Program Files\dotnet\sdk\6.0.101\ref\netstandard.dll"
+  let netstd20 =
+    @"C:\Program Files\dotnet\sdk\6.0.101\ref\netstandard.dll"
+
   let netstdlib20 = netstd20 |> AssemblyName.GetAssemblyName
 
   // TODO -- environment names
@@ -150,10 +156,7 @@ let main argv =
     :?> IList<AssemblyName>
 
   let refpaths =
-    Directory.GetFiles(
-      platformPath,
-      "*.dll"
-    )
+    Directory.GetFiles(platformPath, "*.dll")
 
   let uMap =
     Convert.ChangeType(makeUnify.Invoke([||]), unification)
@@ -167,10 +170,18 @@ let main argv =
   adder.Invoke(uMap, [| netstdlib21 :> obj; corelib :> obj |])
   |> ignore
 
-  adder.Invoke(uMap, [| netstdlib20 :> obj; netstdlib21 :> obj |])
+  adder.Invoke(
+    uMap,
+    [| netstdlib20 :> obj
+       netstdlib21 :> obj |]
+  )
   |> ignore
 
-  adder.Invoke(uMap, [| netstdlib21 :> obj; netstdlib20 :> obj |])
+  adder.Invoke(
+    uMap,
+    [| netstdlib21 :> obj
+       netstdlib20 :> obj |]
+  )
   |> ignore
 
   //let add =
@@ -211,8 +222,11 @@ let main argv =
          netstd20 |]
     )
 
-  let nextv = platform.GetField("m_nextPlatformVersion",
-      BindingFlags.NonPublic ||| BindingFlags.Instance)
+  let nextv =
+    platform.GetField(
+      "m_nextPlatformVersion",
+      BindingFlags.NonPublic ||| BindingFlags.Instance
+    )
 
   nextv.SetValue(add3, add)
 
@@ -232,8 +246,8 @@ let main argv =
     typeof<PlatformInfo>.GetProperty
       ("PlatformVersion", BindingFlags.Public ||| BindingFlags.Instance)
 
-  piv.SetValue(pi2, Version(4,0,0,0))
-  piv.SetValue(pi3, Version(2,0,0,0))
+  piv.SetValue(pi2, Version(4, 0, 0, 0))
+  piv.SetValue(pi3, Version(2, 0, 0, 0))
 
   alt.SetValue(add, add3)
   alt.SetValue(add3, add2)

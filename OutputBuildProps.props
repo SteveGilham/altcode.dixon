@@ -16,8 +16,8 @@
     <RollForward>Major</RollForward>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(InfrastructureKey)</AssemblyOriginatorKeyFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
