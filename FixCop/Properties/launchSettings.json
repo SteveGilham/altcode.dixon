@@ -2,7 +2,7 @@
   "profiles": {
     "FixCop": {
       "commandName": "Project",
-      "commandLineArgs": "/f:\"%USERPROFILE%\\Documents\\GitHub\\dixon\\_Binaries\\altcode.dixon.testdata\\Debug+AnyCPU\\netstandard2.0\\altcode.dixon.testdata.dll\" /console \"/platform:C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\6.0.1\" /out:FixCop.xml /skipplatdirs "
+      "commandLineArgs": "/f:\"%USERPROFILE%\\Documents\\GitHub\\dixon\\_Binaries\\altcode.dixon.testdata\\Debug+AnyCPU\\netstandard2.0\\altcode.dixon.testdata.dll\" /console \"/platform:C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\3.1.22\" /out:FixCop.xml /skipplatdirs "
     }
   }
 }
