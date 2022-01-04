@@ -134,14 +134,14 @@ let main argv =
   let netstdlib20 = netstd20 |> AssemblyName.GetAssemblyName
 
   // TODO -- environment names
-  let printInfo i =
-    props
-    |> Array.iter (fun p -> printfn "%s : %A" p.Name (p.GetValue(i, null)))
+  //let printInfo i =
+  //  props
+  //  |> Array.iter (fun p -> printfn "%s : %A" p.Name (p.GetValue(i, null)))
 
   let netinfo =
     getInfo.Invoke(null, [| netstd21 :> obj |])
 
-  printInfo netinfo
+  //printInfo netinfo
 
   let refs =
     (props
@@ -207,7 +207,7 @@ let main argv =
       [| unknown
          netstdlib20
          uMap
-         List.empty<string>
+         refpaths
          netstd20 |]
     )
 
@@ -256,19 +256,19 @@ let main argv =
 
   let r = main.Invoke(null, [| argv :> obj |])
 
-  [ add; add2; add3 ]
-  |> List.iter
-       (fun a ->
-         platform.GetProperties(
-           BindingFlags.Public
-           ||| BindingFlags.NonPublic
-           ||| BindingFlags.Instance
-           ||| BindingFlags.Static
-         )
-         |> Seq.iter
-              (fun p ->
-                let v = p.GetValue(a, null)
-                printfn "%s => %A" p.Name v)
-         printfn "------------------")
+  //[ add; add2; add3 ]
+  //|> List.iter
+  //     (fun a ->
+  //       platform.GetProperties(
+  //         BindingFlags.Public
+  //         ||| BindingFlags.NonPublic
+  //         ||| BindingFlags.Instance
+  //         ||| BindingFlags.Static
+  //       )
+  //       |> Seq.iter
+  //            (fun p ->
+  //              let v = p.GetValue(a, null)
+  //              printfn "%s => %A" p.Name v)
+  //       printfn "------------------")
 
   r :?> int
