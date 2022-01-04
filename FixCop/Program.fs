@@ -129,7 +129,9 @@ let main argv =
     AssemblyName(
       "System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e"
     )
-  let netstdlib20 = AssemblyName("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
+
+  let netstd20 = @"C:\Program Files\dotnet\sdk\6.0.101\ref\netstandard.dll"
+  let netstdlib20 = netstd20 |> AssemblyName.GetAssemblyName
 
   // TODO -- environment names
   let printInfo i =
@@ -171,16 +173,16 @@ let main argv =
   adder.Invoke(uMap, [| netstdlib21 :> obj; netstdlib20 :> obj |])
   |> ignore
 
-  let add =
-    makePlatform.Invoke(
-      [| unknown
-         netstdlib21
-         uMap
-         [ platformPath ]
-         core |]
-    )
+  //let add =
+  //  makePlatform.Invoke(
+  //    [| unknown
+  //       netstdlib21
+  //       uMap
+  //       [ platformPath ]
+  //       core |]
+  //  )
 
-  platforms.Add add |> ignore
+  //platforms.Add add |> ignore
 
   let add =
     makePlatform.Invoke(
@@ -205,9 +207,14 @@ let main argv =
       [| unknown
          netstdlib20
          uMap
-         refpaths
-         netstd21 |]
+         List.empty<string>
+         netstd20 |]
     )
+
+  let nextv = platform.GetField("m_nextPlatformVersion",
+      BindingFlags.NonPublic ||| BindingFlags.Instance)
+
+  nextv.SetValue(add3, add)
 
   let pi = platform.GetProperty("PlatformInfo")
   let pi1 = pi.GetValue(add) :?> PlatformInfo
@@ -225,8 +232,8 @@ let main argv =
     typeof<PlatformInfo>.GetProperty
       ("PlatformVersion", BindingFlags.Public ||| BindingFlags.Instance)
 
-  piv.SetValue(pi2, piv.GetValue(pi1))
-  piv.SetValue(pi3, piv.GetValue(pi1))
+  piv.SetValue(pi2, Version(4,0,0,0))
+  piv.SetValue(pi3, Version(2,0,0,0))
 
   alt.SetValue(add, add3)
   alt.SetValue(add3, add2)
