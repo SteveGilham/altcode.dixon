@@ -7,6 +7,10 @@ open System.Collections.Generic
 
 [<EntryPoint>]
 let main argv =
+  let plat = argv
+            |> Seq.find (fun a -> a.StartsWith("/plat"))
+  let platformPath = plat.Substring(plat.IndexOf(':') + 1)
+
   let here = Assembly.GetExecutingAssembly().Location
 
   let files =
@@ -77,7 +81,6 @@ let main argv =
     typeof<PlatformInfo>.Assembly.GetType
       ("Microsoft.VisualStudio.CodeAnalysis.PlatformType")
 
-  let midori = Enum.Parse(ptype, "Midori")
   let unknown = Enum.Parse(ptype, "Unknown")
 
   // interesting calls
@@ -117,26 +120,24 @@ let main argv =
     )
 
   // interesting platform assemblies
+  let netstd21 = Path.Combine(platformPath, "netstandard.dll")
+  let netstdlib21 = netstd21 |> AssemblyName.GetAssemblyName
+
+  let core = Path.Combine(platformPath, "System.Private.CoreLib.dll")
+
   let corelib =
     AssemblyName(
       "System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e"
     )
-
-  let netstdlib =
-    AssemblyName(
-      "netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51"
-    )
+  let netstdlib20 = AssemblyName("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51")
 
   // TODO -- environment names
   let printInfo i =
     props
     |> Array.iter (fun p -> printfn "%s : %A" p.Name (p.GetValue(i, null)))
 
-  let netstd2 =
-    """C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.0.9\netstandard.dll"""
-
   let netinfo =
-    getInfo.Invoke(null, [| netstd2 :> obj |])
+    getInfo.Invoke(null, [| netstd21 :> obj |])
 
   printInfo netinfo
 
@@ -146,15 +147,9 @@ let main argv =
       .GetValue(netinfo, null)
     :?> IList<AssemblyName>
 
-  // moniker ".NETStandard,Version=v2.0 "
-  let core =
-    """C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.0.9\System.Private.CoreLib.dll"""
-
-  let dirpath = netstd2 |> Path.GetDirectoryName
-
   let refpaths =
     Directory.GetFiles(
-      @"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.0.9",
+      platformPath,
       "*.dll"
     )
 
@@ -163,32 +158,37 @@ let main argv =
 
   refs
   |> Seq.iter (fun r -> adder.Invoke(uMap, [| r; r |]) |> ignore)
-  //adder.Invoke(uMap, [| corelib :> obj; netstdlib :> obj|]) |> ignore
-  //adder.Invoke(uMap, [| netstdlib :> obj; corelib :> obj|]) |> ignore
 
-  //let add = makePlatform.Invoke([| unknown; netstdlib; uMap; [dirpath] ; core |])
-  //platforms.Add add |> ignore
+  adder.Invoke(uMap, [| corelib :> obj; netstdlib21 :> obj |])
+  |> ignore
 
-  //refpaths
-  //|> Seq.map (fun f -> try
-  //                        Some ((f |> Assembly.LoadFile).GetName())
-  //                     with
-  //                     | _ -> None)
-  //|> Seq.choose id
-  //|> Seq.iter (fun n -> let add2 = makePlatform.Invoke([| unknown; n; uMap; [dirpath] ; dirpath |])
-  //                      alt.SetValue(add, add2)
-  //                      alt.SetValue(add2, add)
-  //                      add2
-  //                      |> platforms.Add
-  //                      |> ignore)
+  adder.Invoke(uMap, [| netstdlib21 :> obj; corelib :> obj |])
+  |> ignore
+
+  adder.Invoke(uMap, [| netstdlib20 :> obj; netstdlib21 :> obj |])
+  |> ignore
+
+  adder.Invoke(uMap, [| netstdlib21 :> obj; netstdlib20 :> obj |])
+  |> ignore
 
   let add =
     makePlatform.Invoke(
       [| unknown
-         netstdlib
+         netstdlib21
+         uMap
+         [ platformPath ]
+         core |]
+    )
+
+  platforms.Add add |> ignore
+
+  let add =
+    makePlatform.Invoke(
+      [| unknown
+         netstdlib21
          uMap
          refpaths
-         netstd2 |]
+         netstd21 |]
     )
 
   let add2 =
@@ -196,31 +196,45 @@ let main argv =
       [| unknown
          corelib
          uMap
-         [ dirpath ]
+         [ platformPath ]
          core |]
+    )
+
+  let add3 =
+    makePlatform.Invoke(
+      [| unknown
+         netstdlib20
+         uMap
+         refpaths
+         netstd21 |]
     )
 
   let pi = platform.GetProperty("PlatformInfo")
   let pi1 = pi.GetValue(add) :?> PlatformInfo
   let pi2 = pi.GetValue(add2) :?> PlatformInfo
+  let pi3 = pi.GetValue(add3) :?> PlatformInfo
 
   let pin =
     typeof<PlatformInfo>.GetProperty
       ("PlatformType", BindingFlags.NonPublic ||| BindingFlags.Instance)
 
   pin.SetValue(pi2, pin.GetValue(pi1))
+  pin.SetValue(pi3, pin.GetValue(pi1))
 
   let piv =
     typeof<PlatformInfo>.GetProperty
       ("PlatformVersion", BindingFlags.Public ||| BindingFlags.Instance)
 
   piv.SetValue(pi2, piv.GetValue(pi1))
+  piv.SetValue(pi3, piv.GetValue(pi1))
 
-  alt.SetValue(add, add2)
+  alt.SetValue(add, add3)
+  alt.SetValue(add3, add2)
   alt.SetValue(add2, add)
 
   platforms.Add add |> ignore
   platforms.Add add2 |> ignore
+  platforms.Add add3 |> ignore
 
   let fxcop =
     Path.Combine(here |> Path.GetDirectoryName, "FxCopCmd.exe")
@@ -235,7 +249,7 @@ let main argv =
 
   let r = main.Invoke(null, [| argv :> obj |])
 
-  [ add; add2 ]
+  [ add; add2; add3 ]
   |> List.iter
        (fun a ->
          platform.GetProperties(
@@ -247,6 +261,7 @@ let main argv =
          |> Seq.iter
               (fun p ->
                 let v = p.GetValue(a, null)
-                printfn "%s => %A" p.Name v))
+                printfn "%s => %A" p.Name v)
+         printfn "------------------")
 
   r :?> int
