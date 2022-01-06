@@ -4,6 +4,8 @@
     <OutputType>Exe</OutputType>
     <Platforms>x86</Platforms>
     <TargetFramework>net472</TargetFramework>
+    <AssemblyName>DixonCmd</AssemblyName>
+    <ApplicationIcon>Dixon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -16,6 +18,15 @@
   <ItemGroup>
     <Compile Include="..\_Generated\AssemblyVersion.fs" Link="AssemblyVersion.fs" />
     <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Dixon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Resource.rc" />
+    <None Include="Resource.res" />
   </ItemGroup>
 
   <ItemGroup>
