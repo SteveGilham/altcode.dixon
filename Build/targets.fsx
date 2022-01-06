@@ -477,10 +477,14 @@ _Target "OperationalTest" ignore
 
 _Target "Packaging" (fun _ ->
   let productDir = Path.getFullName "_Binaries/AltCode.Dixon/Release+x86/net472"
+  let toolDir = Path.getFullName "_Binaries/FixCop/Release+x86/net472"
   let packable = Path.getFullName "./_Binaries/README.html"
 
   let productFiles =
-    [ (productDir @@ "AltCode.Dixon.dll", Some "Rules", None)
+    [ (productDir @@ "AltCode.Dixon.dll", Some "tools/Rules", None)
+      (toolDir @@ "DixonCmd.exe", Some "tools", None)
+      (toolDir @@ "DixonCmd.exe.config", Some "tools", None)
+      (toolDir @@ "netstandard.dll", Some "tools", None)
       (Path.getFullName "./LICENS*", Some "", None)
       (Path.getFullName "./Dixon_128.*g", Some "", None)
       (packable, Some "", None) ]
