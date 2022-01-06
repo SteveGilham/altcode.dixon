@@ -487,6 +487,7 @@ _Target "Packaging" (fun _ ->
       (toolDir @@ "netstandard.dll", Some "tools", None)
       (Path.getFullName "./LICENS*", Some "", None)
       (Path.getFullName "./Dixon_128.*g", Some "", None)
+      (Path.getFullName "./README.md", Some "", None) ]
       (packable, Some "", None) ]
 
   [ (productFiles, "_Packaging", "./Build/altcode.dixon.nuspec", "AltCode.Dixon",

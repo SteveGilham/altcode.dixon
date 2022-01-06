@@ -14,6 +14,7 @@
     <icon>Dixon_128.png</icon>
     <description>FxCop rule additions.</description>
     <releaseNotes>@releaseNotes@</releaseNotes>
+    <readme>README.md</readme>
     <copyright>@copyright@</copyright>
     <tags>fxcop static-analysis .net</tags>
     <repository type="git" url="https://github.com/SteveGilham/altcode.dixon" />
