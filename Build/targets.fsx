@@ -483,6 +483,7 @@ _Target "Packaging" (fun _ ->
     [ (productDir @@ "AltCode.Dixon.dll", Some "tools/Rules", None)
       (toolDir @@ "DixonCmd.exe", Some "tools", None)
       (toolDir @@ "DixonCmd.exe.config", Some "tools", None)
+      (toolDir @@ "FSharp.Core.dll", Some "tools", None)
       (toolDir @@ "netstandard.dll", Some "tools", None)
       (Path.getFullName "./LICENS*", Some "", None)
       (Path.getFullName "./Dixon_128.*g", Some "", None)
