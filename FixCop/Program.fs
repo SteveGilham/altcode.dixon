@@ -12,18 +12,16 @@ let main argv =
 
   let platformPath = plat.Substring(plat.IndexOf(':') + 1)
 
-  let here = Assembly.GetExecutingAssembly().Location
-             |> Path.GetDirectoryName
+  let here =
+    Assembly.GetExecutingAssembly().Location
+    |> Path.GetDirectoryName
 
   let files =
     here
     |> Directory.GetFiles
     |> Seq.filter (fun f -> f.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
     |> Seq.sortDescending
-    |> Seq.map
-         (fun n ->
-           Path.Combine(here, n)
-           |> Assembly.LoadFile)
+    |> Seq.map (fun n -> Path.Combine(here, n) |> Assembly.LoadFile)
 
   // tracing
   let ca =
@@ -41,10 +39,7 @@ let main argv =
 
   // interop info
   let cainterop =
-    Path.Combine(
-      here,
-      "Microsoft.VisualStudio.CodeAnalysis.Interop.dll"
-    )
+    Path.Combine(here, "Microsoft.VisualStudio.CodeAnalysis.Interop.dll")
     |> Assembly.LoadFile
 
   let info =
@@ -63,10 +58,7 @@ let main argv =
 
   // key assembly
   let cacommon =
-    Path.Combine(
-      here,
-      "Microsoft.VisualStudio.CodeAnalysis.Common.dll"
-    )
+    Path.Combine(here, "Microsoft.VisualStudio.CodeAnalysis.Common.dll")
     |> Assembly.LoadFile
 
   // interesting types
@@ -121,8 +113,7 @@ let main argv =
     )
 
   // interesting platform assemblies
-  let netstd21 =
-    Path.Combine(here, "netstandard.dll")
+  let netstd21 = Path.Combine(here, "netstandard.dll")
 
   let netstdlib21 = netstd21 |> AssemblyName.GetAssemblyName
 
@@ -199,8 +190,7 @@ let main argv =
   platforms.Add add |> ignore
   platforms.Add add3 |> ignore
 
-  let fxcop =
-    Path.Combine(here, "FxCopCmd.exe")
+  let fxcop = Path.Combine(here, "FxCopCmd.exe")
 
   let driven = fxcop |> Assembly.LoadFile
 
