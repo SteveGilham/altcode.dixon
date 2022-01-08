@@ -1,5 +1,5 @@
 # altcode.dixon
-FxCop rule extensions and related code.  A project named for that well known police constable of yesteryear.  Intended for use with F#, since we don't have Roslyn analyzers there.
+FxCop v17 (Visual Studio 2022) rule extensions and related code.  A project named for that well known police constable of yesteryear.  Intended for use with F#, since we don't have Roslyn analyzers there.
 
 ## Features
 ### FxCop for `netstandard2.0`
@@ -17,6 +17,7 @@ The package contains a subfolder `tools` which contains everything, including a 
 * Copy FxCop from under Visual Studio to some (`.gitignore`d as required) location within your project. 
 * Copy the Dixon NuGet package `tools` folder into the same directory as above (or just the `Rules` subfolder into the `Rules` subfolder if `netstandard2.0` support isn't relevant; or omit the `Rules` subfolder if those are not wanted)
 * Copy the `FxCopCmd.exe.config` to `DixonCmd.exe.config` if `netstandard2.0` support is desired.
+* You may need to copy the `FSharp.Core.dll` assembly from `tools` anyway if you're not an a machine with F# development -- do this if there's an obvious failure to load because it's not there.
 
 Now for framework assemblies use `FxCopCmd.exe` as before from the new location, where it will pick up the Dixon rules.  For `netstandard2.0` assemblies, use `DixonCmd.exe /platform=<path to DotNet sdk ref subfolder containing netstandard2.0.dll>` e.g. `DixonCmd.exe "/plat:C:\Program Files\dotnet\sdk\6.0.101\ref"`
 
@@ -52,7 +53,7 @@ Some dependency lacks will be obvious from the error messages, but some are subt
 
 ### Build process from trunk as per `appveyor.yml`
 
-Assumes VS2019 build environment for the moment
+Assumes VS2022 build environment
 
 * dotnet tool restore
 * dotnet fake run .\Build\setup.fsx

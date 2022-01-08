@@ -2,7 +2,7 @@
 
 [Here's the recipe I use](https://github.com/SteveGilham/altcode.dixon/wiki).
 
-# 2022.13.xx.xxxxx-pre-release
+# 2022.13.xx.xxxxx
 
 * `DixonCmd` tool to extend FxCop support to netstandard2.0 (no other `dotnet` platform versions, at least not yet)
 
