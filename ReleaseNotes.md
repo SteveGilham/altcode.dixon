@@ -4,6 +4,6 @@
 
 # 2022.13.xx.xxxxx-pre-release
 
-* `DixonCmd` tool to extend FxCop support to netstandard2.0 (maybe more, but not tested)
+* `DixonCmd` tool to extend FxCop support to netstandard2.0 (no other `dotnet` platform versions, at least not yet)
 
 For previous releases, go here -- https://github.com/SteveGilham/altcode.dixon/blob/master/ReleaseNotes%20-%20Previously.md

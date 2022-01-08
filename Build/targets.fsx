@@ -482,7 +482,6 @@ _Target "Packaging" (fun _ ->
   let productFiles =
     [ (productDir @@ "AltCode.Dixon.dll", Some "tools/Rules", None)
       (toolDir @@ "DixonCmd.exe", Some "tools", None)
-      (toolDir @@ "DixonCmd.exe.config", Some "tools", None)
       (toolDir @@ "FSharp.Core.dll", Some "tools", None)
       (toolDir @@ "netstandard.dll", Some "tools", None)
       (Path.getFullName "./LICENS*", Some "", None)

@@ -5,7 +5,7 @@ branches:
   except:
   - /develop.*/
 skip_tags: true
-image: Visual Studio 2022
+image: Visual Studio 2019
 configuration: Release
 clone_depth: 2
 environment:

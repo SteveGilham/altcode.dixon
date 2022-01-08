@@ -12,13 +12,47 @@ An executable, `DixonCmd.exe` that injects a `netstandard2.0` compatible platfor
 
 ## Never mind the fluff -- How do I use this?
 
-[Here's the recipe I use](https://github.com/SteveGilham/altcode.dixon/wiki).
+The package contains a subfolder `tools` which contains everything, including a further subfolder `Rules` containing just the rules assembly.
+
+* Copy FxCop from under Visual Studio to some (`.gitignore`d as required) location within your project. 
+* Copy the Dixon NuGet package `tools` folder into the same directory as above (or just the `Rules` subfolder into the `Rules` subfolder if `netstandard2.0` support isn't relevant; or omit the `Rules` subfolder if those are not wanted)
+* Copy the `FxCopCmd.exe.config` to `DixonCmd.exe.config` if `netstandard2.0` support is desired.
+
+Now for framework assemblies use `FxCopCmd.exe` as before from the new location, where it will pick up the Dixon rules.  For `netstandard2.0` assemblies, use `DixonCmd.exe /platform=<path to DotNet sdk ref subfolder containing netstandard2.0.dll>` e.g. `DixonCmd.exe "/plat:C:\Program Files\dotnet\sdk\6.0.101\ref"`
+
+### Finding the Dixon parts
+
+I've used a dummy `.csproj` to install tooling packages that aren't `dotnet tool` items (things like unit test console runners for .net Framework, or PowerShell modules such as Pester) to a non-cache location using `dotnet restore --packages`
+
+Your build script can parse the `.csproj` as XML to find the version under the `altcode.dixon` folder
+
+### Finding the FxCop tool
+
+It's at `%ProgramFiles\Microsoft Visual Studio\2022\<edition>\Team Tools\Static Analysis Tools\FxCop` or
+`%ProgramFiles(x86)\Microsoft Visual Studio\2019\<edition>\Team Tools\Static Analysis Tools\FxCop`; to automate the process in your build scripts, it's simplest to use the `BlackFox.VsWhere` package --
+
+* `BlackFox.VsWhere.VsInstances.getAll()` to get installed versions
+* select one of those with `InstallationVersion` property major version 16 or 17 as appropriate to your process
+* FxCop is in folder `Team Tools/Static Analysis Tools/` beneath the `InstallationPath` property
+
+### Running the DixonCmd tool
+
+As well as needing the path of the `netstandard2.0.dll` in the build environment, the process will need to be fed with the non-platform dependencies through the `/d:` command line argument e.g.
+```
+"/d:<nuget cache>/packages\<package name>/<package version>/lib/netstandard2.0"
+```
+
+Some dependency lacks will be obvious from the error messages, but some are subtle and need to be deduced from the exception details in the FxCop report file.  In particular it may be necessary to add .net Framework 4.7.2 (or at least its reference asseblies to handle resolution failures with obvious platform functionality)
+
+### In greater detail
+
+[Here's the recipe I use](https://github.com/SteveGilham/altcode.dixon/wiki), including appropriate sections of `Fake.build` scripting.
 
 ## Developer/Contributor info
 
 ### Build process from trunk as per `appveyor.yml`
 
-Assumes VS2022 build environment
+Assumes VS2019 build environment for the moment
 
 * dotnet tool restore
 * dotnet fake run .\Build\setup.fsx
