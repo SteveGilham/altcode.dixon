@@ -96,11 +96,14 @@ let currentBranch =
     else
         env
 
-let package project =
-    if currentBranch.StartsWith("release/", StringComparison.Ordinal) then
-        currentBranch = "release/" + project
+let badge =
+    if
+        currentBranch.StartsWith("release/", StringComparison.Ordinal)
+        && (currentBranch.Contains("pre-release") |> not)
+    then
+        String.Empty
     else
-        true
+        "-pre-release"
 
 let toolPackages =
     let xml =
@@ -647,7 +650,7 @@ _Target
                               WorkingDir = workingDir
                               Files = files
                               Dependencies = dependencies
-                              Version = (!Version + "-pre-release")
+                              Version = (!Version + badge)
                               Copyright = (!Copyright).Replace("©", "(c)")
                               Publish = false
                               ReleaseNotes =
@@ -688,8 +691,7 @@ _Target
         let text =
             File.ReadAllText "./Build/dotnet-tools.json"
 
-        let newtext =
-            text.Replace("{0}", (!Version + "-pre-release"))
+        let newtext = text.Replace("{0}", (!Version + badge))
 
         File.WriteAllText((config @@ "dotnet-tools.json"), newtext)
 
@@ -710,7 +712,7 @@ _Target
             csproj.Descendants(XName.Get("PackageReference"))
             |> Seq.head
 
-        p.Attribute(XName.Get "Version").Value <- (!Version + "-pre-release")
+        p.Attribute(XName.Get "Version").Value <- (!Version + badge)
         let proj = unpack @@ "unpack.csproj"
         csproj.Save proj
 
@@ -720,7 +722,7 @@ _Target
                       Packages = [ "./packages" ] })
             proj
 
-        let vname = !Version + "-pre-release"
+        let vname = !Version + badge
 
         let from =
             (Path.getFullName @"_Unpack\packages\altcode.dixon\")
