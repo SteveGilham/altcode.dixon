@@ -7,6 +7,8 @@ open System.Reflection
 
 open Microsoft.FxCop.Sdk
 
+open AltCover.Shared
+
 module Utilities =
   [<SuppressMessage("Gendarme.Rules.BadPractice",
                     "AvoidCallingProblematicMethodsRule",
@@ -21,7 +23,7 @@ module Utilities =
 
     let rule =
       source.GetTypes()
-      |> Seq.find (fun t -> t.Name = rule)
+      |> Seq.find (fun t -> t.Name == rule)
 
     rule.GetConstructor(Type.EmptyTypes).Invoke([||]) :?> BaseIntrospectionRule
 
@@ -90,8 +92,11 @@ module Utilities =
   type Microsoft.FxCop.Sdk.Member with
     member self.HasAttribute typeName =
       self.Attributes
-      |> Seq.exists (fun a -> a.Type.FullName = typeName)
+      |> Seq.exists (fun a -> a.Type.FullName == typeName)
 
+    [<SuppressMessage("Gendarme.Rules.Globalization",
+                      "PreferStringComparisonOverrideRule",
+                      Justification = ".Contains overload not available at net472")>]
     member self.IsFSharpCode =
       self.IsNotNull
       && match self with
