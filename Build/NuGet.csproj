@@ -9,17 +9,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NuGet.CommandLine" version="6.0.0">
+    <PackageReference Include="NuGet.CommandLine">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="altcode.gendarme" version="2021.5.28.12260-pre-release" />
-    <PackageReference Include="NUnit.ConsoleRunner" version="3.13.2" />
-    <PackageReference Include="altcover" version="8.2.833" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" version="1.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="altcode.gendarme"/>
+    <PackageReference Include="NUnit.ConsoleRunner" />
+    <PackageReference Include="altcover" />
   </ItemGroup>
 
 </Project>

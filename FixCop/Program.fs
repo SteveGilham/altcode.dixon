@@ -10,7 +10,8 @@ let main argv =
   let plat =
     argv |> Seq.find (fun a -> a.StartsWith("/plat"))
 
-  let platformPath = plat.Substring(plat.IndexOf(':') + 1)
+  let platformPath =
+    plat.Substring(plat.IndexOf(':') + 1)
 
   let here =
     Assembly.GetExecutingAssembly().Location
@@ -31,7 +32,8 @@ let main argv =
   let catrace =
     ca.GetType("Microsoft.VisualStudio.CodeAnalysis.Diagnostics.CATrace")
 
-  let verbose = System.Diagnostics.TraceLevel.Verbose
+  let verbose =
+    System.Diagnostics.TraceLevel.Verbose
 
   catrace
     .GetProperty("TraceLevel")
@@ -113,14 +115,17 @@ let main argv =
     )
 
   // interesting platform assemblies
-  let netstd21 = Path.Combine(here, "netstandard.dll")
+  let netstd21 =
+    Path.Combine(here, "netstandard.dll")
 
-  let netstdlib21 = netstd21 |> AssemblyName.GetAssemblyName
+  let netstdlib21 =
+    netstd21 |> AssemblyName.GetAssemblyName
 
   let netstd20 =
     Path.Combine(platformPath, "netstandard.dll")
 
-  let netstdlib20 = netstd20 |> AssemblyName.GetAssemblyName
+  let netstdlib20 =
+    netstd20 |> AssemblyName.GetAssemblyName
 
   let netinfo =
     getInfo.Invoke(null, [| netstd21 :> obj |])
@@ -168,7 +173,9 @@ let main argv =
 
   nextv.SetValue(add3, add)
 
-  let pi = platform.GetProperty("PlatformInfo")
+  let pi =
+    platform.GetProperty("PlatformInfo")
+
   let pi1 = pi.GetValue(add) :?> PlatformInfo
   let pi3 = pi.GetValue(add3) :?> PlatformInfo
 
@@ -190,7 +197,8 @@ let main argv =
   platforms.Add add |> ignore
   platforms.Add add3 |> ignore
 
-  let fxcop = Path.Combine(here, "FxCopCmd.exe")
+  let fxcop =
+    Path.Combine(here, "FxCopCmd.exe")
 
   let driven = fxcop |> Assembly.LoadFile
 
