@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AltCode.Fake.DotNet.Gendarme" />
     <PackageReference Include="Fake.Core.Target" />
     <PackageReference Include="Fake.Core.Environment" />
     <PackageReference Include="Fake.Core.Process" />

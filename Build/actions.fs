@@ -1,18 +1,21 @@
-open System
-open System.IO
-open System.Reflection
-open System.Xml
-open System.Xml.Linq
-open Fake.Core
-open Fake.DotNet
-open Fake.IO.FileSystemOperators
-open Fake.IO
-open Fake.IO.Globbing.Operators
-open HeyRed.MarkdownSharp
-open NUnit.Framework
-open YamlDotNet.RepresentationModel
+namespace AltCode.Dixon
 
 module Actions =
+
+  open System
+  open System.IO
+  open System.Reflection
+  open System.Xml
+  open System.Xml.Linq
+  open Fake.Core
+  open Fake.DotNet
+  open Fake.IO.FileSystemOperators
+  open Fake.IO
+  open Fake.IO.Globbing.Operators
+  open HeyRed.MarkdownSharp
+  open NUnit.Framework
+  open YamlDotNet.RepresentationModel
+
   let Clean () =
     let rec clean1 depth =
       try
@@ -52,6 +55,9 @@ module Actions =
         |> Seq.map (fun f ->
           (Path.GetDirectoryName f)
           @@ "coverage.opencover.xml")
+        |> Seq.iter File.Delete
+
+        !!(@"./**/InternalTrace.*.log")
         |> Seq.iter File.Delete
 
         let temp = Environment.environVar "TEMP"
@@ -123,7 +129,7 @@ do ()"""
     Array.append prefix buffer
 
   let InternalsVisibleTo version =
-    let stream =
+    use stream = // fsharplint:disable-next-line  RedundantNewKeyword
       new System.IO.FileStream(
         "./Build/Infrastructure.snk",
         System.IO.FileMode.Open,
@@ -154,26 +160,6 @@ do ()"""
 
     if not (old.Equals(file)) then
       File.WriteAllText(path, file)
-
-  let GetVersionFromYaml () =
-    use yaml =
-      new FileStream(
-        "appveyor.yml",
-        FileMode.Open,
-        FileAccess.ReadWrite,
-        FileShare.None,
-        4096,
-        FileOptions.SequentialScan
-      )
-
-    use yreader = new StreamReader(yaml)
-    let ystream = new YamlStream()
-    ystream.Load(yreader)
-
-    let mapping =
-      ystream.Documents.[0].RootNode :?> YamlMappingNode
-
-    string mapping.Children.[YamlScalarNode("version")]
 
   let LocalVersion appveyor (version: string) =
     let now = DateTimeOffset.UtcNow

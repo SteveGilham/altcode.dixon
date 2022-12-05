@@ -50,7 +50,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <ProjectReference Include="..\netstandard\netstandard.csproj" />
-    <PackageReference Include="DotNet.ReproducibleBuilds" />
     <PackageReference Include="FSharp.Core">
       <ExcludeAssets>contentfiles</ExcludeAssets>
     </PackageReference>
