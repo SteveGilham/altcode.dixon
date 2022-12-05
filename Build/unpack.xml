@@ -9,6 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="altcode.dixon" Version="" />
+    <PackageReference Include="altcode.dixon" VersionOverride="" />
   </ItemGroup>
 </Project>

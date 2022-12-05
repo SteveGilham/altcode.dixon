@@ -113,7 +113,7 @@ module Targets =
     then
       String.Empty
     else
-      "-pre-release"
+      "-pre"
 
   let toolPackages =
     let xml =
@@ -722,7 +722,7 @@ module Targets =
         csproj.Descendants(XName.Get("PackageReference"))
         |> Seq.head
 
-      p.Attribute(XName.Get "Version").Value <- (!Version + badge)
+      p.Attribute(XName.Get "VersionOverride").Value <- (!Version + badge)
       let proj = unpack @@ "unpack.csproj"
       csproj.Save proj
 
