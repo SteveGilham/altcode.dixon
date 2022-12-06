@@ -4,8 +4,6 @@ module Actions =
 
   open System
   open System.IO
-  open System.Reflection
-  open System.Xml
   open System.Xml.Linq
   open Fake.Core
   open Fake.DotNet
@@ -14,7 +12,6 @@ module Actions =
   open Fake.IO.Globbing.Operators
   open HeyRed.MarkdownSharp
   open NUnit.Framework
-  open YamlDotNet.RepresentationModel
 
   let Clean () =
     let rec clean1 depth =
@@ -272,13 +269,13 @@ a:hover {color: #ecc;}
       |> Seq.map (fun x ->
         match x.Name.LocalName with
         | "h2" ->
-          keep
-          := (List.tryFind (fun e -> e = String.Concat(x.Nodes())) eliminate)
-             |> Option.isNone
-        | "footer" -> keep := true
+          keep.Value <-
+            (List.tryFind (fun e -> e = String.Concat(x.Nodes())) eliminate)
+            |> Option.isNone
+        | "footer" -> keep.Value <- true
         | _ -> ()
 
-        if !keep then None else Some x)
+        if keep.Value then None else Some x)
       |> Seq.toList
 
     kill

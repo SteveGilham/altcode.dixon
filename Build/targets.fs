@@ -3,32 +3,22 @@ namespace AltCode.Dixon
 module Targets =
 
   open System
-  open System.Diagnostics.Tracing
   open System.IO
-  open System.Reflection
-  open System.Xml
   open System.Xml.Linq
 
-  open Actions
   open AltCode.Fake.DotNet
-  open AltCoverFake.DotNet.DotNet
   open AltCoverFake.DotNet.Testing
 
   open Fake.Core
   open Fake.Core.TargetOperators
   open Fake.DotNet
   open Fake.DotNet.NuGet.NuGet
-  open Fake.DotNet.Testing.NUnit3
   open Fake.Testing
   open Fake.DotNet.Testing
   open Fake.IO
   open Fake.IO.FileSystemOperators
-  open Fake.IO.Globbing
   open Fake.IO.Globbing.Operators
   open Fake.Tools.Git
-
-  //open FSharpLint.Application
-  //open FSharpLint.Framework
 
   open NUnit.Framework
 
@@ -148,7 +138,7 @@ module Targets =
   let misses = ref 0
 
   let uncovered (path: string) =
-    misses := 0
+    misses.Value <- 0
 
     !!path
     |> Seq.collect (fun f ->
@@ -162,7 +152,7 @@ module Targets =
           sprintf "No coverage from '%s'" f
           |> Trace.traceImportant
 
-          misses := 1 + !misses
+          misses.Value <- 1 + misses.Value
           false)
       |> Seq.map (fun e ->
         let coverage = e.Value
@@ -308,7 +298,6 @@ module Targets =
 
       printfn "%s" (finish text text2))
 
-
   let _Target s f =
     let doTarget s f =
       let banner x =
@@ -349,15 +338,15 @@ module Targets =
       let y = y0.ToString()
       let m = m0.ToString()
       let d = d0.ToString()
-      Version := y + "." + m + "." + d + "." + time
+      Version.Value <- y + "." + m + "." + d + "." + time
 
       let copy =
         sprintf "© 2010-%d by Steve Gilham <SteveGilham@users.noreply.github.com>" y0
 
-      Copyright := "Copyright " + copy
+      Copyright.Value <- "Copyright " + copy
       Directory.ensure "./_Generated"
 
-      let v' = !Version
+      let v' = Version.Value
 
       [ "./_Generated/AssemblyVersion.fs"
         "./_Generated/AssemblyVersion.cs" ]
@@ -594,7 +583,6 @@ module Targets =
 
         Actions.Run (nunitConsole, ".", baseArgs) "Main NUnit failed"
 
-
       with x ->
         printfn "%A" x
         reraise ()
@@ -659,8 +647,8 @@ module Targets =
                 WorkingDir = workingDir
                 Files = files
                 Dependencies = dependencies
-                Version = (!Version + badge)
-                Copyright = (!Copyright).Replace("©", "(c)")
+                Version = (Version.Value + badge)
+                Copyright = (Copyright.Value).Replace("©", "(c)")
                 Publish = false
                 ReleaseNotes =
                   Path.getFullName "ReleaseNotes.md"
@@ -679,7 +667,7 @@ module Targets =
   let PrepareReadMe =
     (fun _ ->
       Actions.PrepareReadMe(
-        (!Copyright)
+        (Copyright.Value)
           .Replace("©", "&#xa9;")
           .Replace("<", "&lt;")
           .Replace(">", "&gt;")
@@ -699,7 +687,7 @@ module Targets =
         File.ReadAllText "./Build/dotnet-tools.json"
 
       let newtext =
-        text.Replace("{0}", (!Version + badge))
+        text.Replace("{0}", (Version.Value + badge))
 
       File.WriteAllText((config @@ "dotnet-tools.json"), newtext)
 
@@ -722,7 +710,7 @@ module Targets =
         csproj.Descendants(XName.Get("PackageReference"))
         |> Seq.head
 
-      p.Attribute(XName.Get "VersionOverride").Value <- (!Version + badge)
+      p.Attribute(XName.Get "VersionOverride").Value <- (Version.Value + badge)
       let proj = unpack @@ "unpack.csproj"
       csproj.Save proj
 
@@ -731,7 +719,7 @@ module Targets =
           { o.WithCommon(withWorkingDirectoryVM unpack) with Packages = [ "./packages" ] })
         proj
 
-      let vname = !Version + badge
+      let vname = Version.Value + badge
 
       let from =
         (Path.getFullName @"_Unpack\packages\altcode.dixon\")
@@ -761,7 +749,31 @@ module Targets =
             ReportTypes = [ ReportGenerator.ReportType.Html ]
             TargetDir = "_Reports/_BulkReport" }))
 
-  //_Target "All" ignore
+  let All =
+    (fun _ ->
+      if
+        Environment.isWindows
+        && currentBranch.StartsWith "release/"
+        && "NUGET_API_TOKEN"
+           |> Environment.environVar
+           |> String.IsNullOrWhiteSpace
+           |> not
+      then
+        (!! "./_Packagin*/*.nupkg")
+        |> Seq.iter (fun f ->
+          printfn "Publishing %A from %A" f currentBranch
+
+          Actions.Run
+            ("dotnet",
+             ".",
+             [ "nuget"
+               "push"
+               f
+               "--api-key"
+               Environment.environVar "NUGET_API_TOKEN"
+               "--source"
+               "https://api.nuget.org/v3/index.json" ])
+            ("NuGet upload failed " + f)))
 
   let resetColours _ =
     Console.ForegroundColor <- consoleBefore |> fst
@@ -794,7 +806,7 @@ module Targets =
     _Target "Deployment" ignore
     _Target "Unpack" Unpack
     _Target "BulkReport" BulkReport
-    _Target "All" ignore
+    _Target "All" All
 
   // Dependencies
   "Clean" ==> "SetVersion" ==> "Preparation"
