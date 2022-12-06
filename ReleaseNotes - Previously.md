@@ -1,4 +1,4 @@
-# 2022.1.8.13192
+# 2022.1.8.13182
 
 * `DixonCmd` tool to extend FxCop support to netstandard2.0 (no other `dotnet` platform versions, at least not yet)
 
