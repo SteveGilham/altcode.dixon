@@ -874,5 +874,3 @@ module Targets =
   let defaultTarget () =
     resetColours ()
     "All"
-
-  Target.runOrDefault <| defaultTarget ()
