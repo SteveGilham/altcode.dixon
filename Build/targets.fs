@@ -86,15 +86,9 @@ module Targets =
     { o with MSBuildParams = cliArguments }
 
   let currentBranch =
-    let env =
-      Environment.environVar "APPVEYOR_REPO_BRANCH"
-
-    if env |> String.IsNullOrWhiteSpace then
-      "."
-      |> Path.getFullName
-      |> Information.getBranchName
-    else
-      env
+    "."
+    |> Path.getFullName
+    |> Information.getBranchName
 
   let badge =
     if

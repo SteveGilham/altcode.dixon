@@ -158,32 +158,6 @@ do ()"""
     if not (old.Equals(file)) then
       File.WriteAllText(path, file)
 
-  let LocalVersion appveyor (version: string) =
-    let now = DateTimeOffset.UtcNow
-
-    let epoch =
-      DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan(int64 0))
-
-    let diff = now.Subtract(epoch)
-
-    let fraction =
-      diff.Subtract(TimeSpan.FromDays(float diff.Days))
-
-    let revision =
-      ((int fraction.TotalSeconds) / 3)
-
-    let majmin =
-      String.Join(".", version.Split('.') |> Seq.take 2)
-
-    let result =
-      if String.IsNullOrWhiteSpace appveyor then
-        sprintf "%s.%d.%d" majmin diff.Days revision
-      else
-        appveyor
-
-    printfn "Build version : %s" version
-    (result, majmin, now.Year)
-
   let HandleResults (msg: string) (result: Fake.Core.ProcessResult) =
     String.Join(Environment.NewLine, result.Messages)
     |> printfn "%s"
