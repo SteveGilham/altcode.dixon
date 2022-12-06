@@ -3,8 +3,8 @@
     <!-- based on https://nietras.com/2021/11/19/bendingdotnet-common-flat-build-output/ -->
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <Platform Condition="$(Platform) == ''">AnyCPU</Platform>
-    <BuildDir>$(MSBuildThisFileDirectory)_Binaries\</BuildDir>
-    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)_Intermediate/$(MSBuildProjectName)/$(Configuration)</BaseIntermediateOutputPath>
+    <BuildDir>$(MSBuildThisFileDirectory)$(AltCodeTag)Binaries\</BuildDir>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)$(AltCodeTag)Intermediate/$(MSBuildProjectName)/$(Configuration)</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)+$(Platform)</IntermediateOutputPath>
     <ProjectBuildDirectoryName>$(AltCoverTag)$(MSBuildProjectName)/$(Configuration)+$(Platform)</ProjectBuildDirectoryName>
     <OutputPathWithoutEndSlash>$(BuildDir)$(ProjectBuildDirectoryName)</OutputPathWithoutEndSlash>
@@ -16,13 +16,14 @@
     <RollForward>Major</RollForward>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <EnableNETAnalyzers>false</EnableNETAnalyzers>
-    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(InfrastructureKey)</AssemblyOriginatorKeyFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DeterministicSourcePaths>false</DeterministicSourcePaths>
     <ContinuousIntegrationBuild>false</ContinuousIntegrationBuild>
@@ -36,5 +37,4 @@
     <DeterministicSourcePaths>true</DeterministicSourcePaths>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
-  
 </Project>

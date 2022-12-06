@@ -17,25 +17,28 @@ type ReraiseCorrectlyRule =
 
     // Default constructor as required
     new() =
-      { inherit BaseIntrospectionRule("ReraiseCorrectly",
-                                      "altcode.dixon.Dixon.Design",
-                                      typeof<ReraiseCorrectlyRule>.Assembly) }
+      { inherit
+          BaseIntrospectionRule(
+            "ReraiseCorrectly",
+            "altcode.dixon.Dixon.Design",
+            typeof<ReraiseCorrectlyRule>.Assembly
+          ) }
 
     override self.Check(``member``: Member) =
       match ``member`` with
       | :? Method as fn ->
         if fn.IsFSharpCode then
           // allowed pattern is newobj (stloc, ldloc)*(0..2) throw
-          let indexable = fn.Instructions |> Seq.toArray
+          let indexable =
+            fn.Instructions |> Seq.toArray
 
           let throws =
             indexable
-            |> Seq.mapi
-                 (fun index instr ->
-                   if instr.OpCode = OpCode.Throw then
-                     Some index
-                   else
-                     None)
+            |> Seq.mapi (fun index instr ->
+              if instr.OpCode = OpCode.Throw then
+                Some index
+              else
+                None)
             |> Seq.choose id
             |> Seq.toList
 
@@ -43,7 +46,9 @@ type ReraiseCorrectlyRule =
             match value with
             | :? Local as l ->
               if l.Name.Name.StartsWith("local$", StringComparison.Ordinal) then
-                let (a, b) = Int32.TryParse(l.Name.Name.Substring(6))
+                let (a, b) =
+                  Int32.TryParse(l.Name.Name.Substring(6))
+
                 if a then Some b else None
               else
                 None
@@ -69,25 +74,27 @@ type ReraiseCorrectlyRule =
             | OpCode.Ldloc_S -> instr.Value |> local
             | _ -> None
 
-          if throws
-             |> List.exists
-                  (fun i ->
-                    if indexable.[i - 1].OpCode = OpCode.Newobj then
-                      false
-                    else if i > 2 && indexable.[i - 3].OpCode = OpCode.Newobj then
-                      match (stloc indexable.[i - 2], ldloc indexable.[i - 1]) with
-                      | (Some x, Some y) when x = y -> false
-                      | _ -> true
-                    else if i > 4 && indexable.[i - 5].OpCode = OpCode.Newobj then
-                      match (stloc indexable.[i - 4],
-                             ldloc indexable.[i - 3],
-                             stloc indexable.[i - 2],
-                             ldloc indexable.[i - 1])
-                        with
-                      | (Some x, Some y, Some a, Some b) when x = y && a = b -> false
-                      | _ -> true
-                    else
-                      true) then
+          if
+            throws
+            |> List.exists (fun i ->
+              if indexable.[i - 1].OpCode = OpCode.Newobj then
+                false
+              else if i > 2 && indexable.[i - 3].OpCode = OpCode.Newobj then
+                match (stloc indexable.[i - 2], ldloc indexable.[i - 1]) with
+                | (Some x, Some y) when x = y -> false
+                | _ -> true
+              else if i > 4 && indexable.[i - 5].OpCode = OpCode.Newobj then
+                match
+                  (stloc indexable.[i - 4],
+                   ldloc indexable.[i - 3],
+                   stloc indexable.[i - 2],
+                   ldloc indexable.[i - 1])
+                with
+                | (Some x, Some y, Some a, Some b) when x = y && a = b -> false
+                | _ -> true
+              else
+                true)
+          then
             self.Problems.Add(Problem(self.GetNamedResolution("preserveStackDetails")))
         else
           self.VisitBlock(fn.Body)
@@ -111,18 +118,19 @@ type ReraiseCorrectlyRule =
       base.VisitThrow(throwInstruction)
 
     override self.VisitExpression(expression: Expression) =
-      if expression.IsNotNull
-         && expression.NodeType = NodeType.Call then
+      if
+        expression.IsNotNull
+        && expression.NodeType = NodeType.Call
+      then
         let call = expression :?> MethodCall
 
         match call.Callee with
         | :? MemberBinding as b ->
           if
-            b.BoundMember.FullName.StartsWith
-              (
-                "Microsoft.FSharp.Core.Operators.raise<",
-                StringComparison.Ordinal
-              )
+            b.BoundMember.FullName.StartsWith(
+              "Microsoft.FSharp.Core.Operators.raise<",
+              StringComparison.Ordinal
+            )
           then
             self.MustBeConstructor call.Operands.[0]
         | _ -> ()

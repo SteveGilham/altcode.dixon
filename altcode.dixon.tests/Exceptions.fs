@@ -9,25 +9,35 @@ open AltCode.Dixon.Design
 module Exceptions =
   [<Test>]
   let JustThrowTest () =
-    let subject = AltCode.Dixon.TestData.Exceptions()
+    let subject =
+      AltCode.Dixon.TestData.Exceptions()
+
     let subjectNode = Utilities.GetType subject
 
-    let offendingMethod = Utilities.GetMethod subjectNode "Fail1"
+    let offendingMethod =
+      Utilities.GetMethod subjectNode "Fail1"
 
     let ruleUnderTest = ReraiseCorrectlyRule()
-    let problems = ruleUnderTest.Check(offendingMethod)
+
+    let problems =
+      ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
 
   [<Test>]
   let NoReThrowTest () =
-    let subject = AltCode.Dixon.TestData.Exceptions()
+    let subject =
+      AltCode.Dixon.TestData.Exceptions()
+
     let subjectNode = Utilities.GetType subject
 
-    let offendingMethod = Utilities.GetMethod subjectNode "Fail2"
+    let offendingMethod =
+      Utilities.GetMethod subjectNode "Fail2"
 
     let ruleUnderTest = ReraiseCorrectlyRule()
-    let problems = ruleUnderTest.Check(offendingMethod)
+
+    let problems =
+      ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(1))
     let problem = problems.[0].Resolution
@@ -43,10 +53,13 @@ module Exceptions =
   let JustRaiseTest () =
     let subjectNode = myType ()
 
-    let offendingMethod = Utilities.GetMethod subjectNode "Fail"
+    let offendingMethod =
+      Utilities.GetMethod subjectNode "Fail"
 
     let ruleUnderTest = ReraiseCorrectlyRule()
-    let problems = ruleUnderTest.Check(offendingMethod)
+
+    let problems =
+      ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
 
@@ -67,10 +80,13 @@ module Exceptions =
   let JustRaise1Test () =
     let subjectNode = myType ()
 
-    let offendingMethod = Utilities.GetMethod subjectNode "Fail1"
+    let offendingMethod =
+      Utilities.GetMethod subjectNode "Fail1"
 
     let ruleUnderTest = ReraiseCorrectlyRule()
-    let problems = ruleUnderTest.Check(offendingMethod)
+
+    let problems =
+      ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
 
@@ -78,10 +94,13 @@ module Exceptions =
   let NoReRaiseTest () =
     let subjectNode = myType ()
 
-    let offendingMethod = Utilities.GetMethod subjectNode "Fail2"
+    let offendingMethod =
+      Utilities.GetMethod subjectNode "Fail2"
 
     let ruleUnderTest = ReraiseCorrectlyRule()
-    let problems = ruleUnderTest.Check(offendingMethod)
+
+    let problems =
+      ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(1))
     let problem = problems.[0].Resolution
@@ -91,10 +110,13 @@ module Exceptions =
   let NoReRaiseTest2 () =
     let subjectNode = myType ()
 
-    let offendingMethod = Utilities.GetMethod subjectNode "Fail3"
+    let offendingMethod =
+      Utilities.GetMethod subjectNode "Fail3"
 
     let ruleUnderTest = ReraiseCorrectlyRule()
-    let problems = ruleUnderTest.Check(offendingMethod)
+
+    let problems =
+      ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(1))
     let problem = problems.[0].Resolution
@@ -102,14 +124,18 @@ module Exceptions =
 
   [<Test>]
   let SafeReThrowTest () =
-    let subject = AltCode.Dixon.TestData.Exceptions()
+    let subject =
+      AltCode.Dixon.TestData.Exceptions()
+
     let subjectNode = Utilities.GetType subject
 
     let offendingMethod =
       Utilities.GetMethod subjectNode "FailSafe"
 
     let ruleUnderTest = ReraiseCorrectlyRule()
-    let problems = ruleUnderTest.Check(offendingMethod)
+
+    let problems =
+      ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
 
@@ -121,7 +147,9 @@ module Exceptions =
       Utilities.GetMethod subjectNode "FailSafe"
 
     let ruleUnderTest = ReraiseCorrectlyRule()
-    let problems = ruleUnderTest.Check(offendingMethod)
+
+    let problems =
+      ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
 
@@ -134,23 +162,20 @@ module Exceptions =
   let Fail2 () =
     try
       Fail0()
-    with
-    | x ->
+    with x ->
       printfn "%A" x
       x |> raise
 
   let Fail3 () =
     try
       Fail1()
-    with
-    | x ->
+    with x ->
       printfn "%A" x
       raise x
 
   let FailSafe () =
     try
       Fail1()
-    with
-    | x ->
+    with x ->
       printfn "%A" x
       reraise ()

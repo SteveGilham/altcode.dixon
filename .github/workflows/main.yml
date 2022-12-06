@@ -4,7 +4,7 @@ on:
   push:
     branches:
     - master
-    - develop/*
+    - develop/github/*
   pull_request:
     branches:
     - master
@@ -13,21 +13,22 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 2
-    - uses: actions/setup-dotnet@v1
+    - uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0.101'
+        dotnet-version: '7.0.100'
     - name: Tools
       run: dotnet tool restore
     - name: Setup
-      run: dotnet fake run ./Build/setup.fsx
+      run: dotnet run --project .\Build\Setup.fsproj
     - name: Build
-#      env:
- #       COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-      run: dotnet fake run ./Build/build.fsx
-    - uses: actions/upload-artifact@v2
+      env:
+#        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+        NUGET_API_TOKEN: ${{ secrets.NUGET_API_TOKEN }}
+      run: dotnet run --project .\Build\Build.fsproj
+    - uses: actions/upload-artifact@v3
       with:
           name: nupkgs
           path: _Packagin*/*.nupkg

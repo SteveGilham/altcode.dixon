@@ -23,14 +23,18 @@ module Justifications =
 
   [<Test>]
   let NoJustificationTest () =
-    let subject = AltCode.Dixon.TestData.Justifications()
+    let subject =
+      AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
-    let offendingMethod = Utilities.GetMethod subjectNode "Token"
+    let offendingMethod =
+      Utilities.GetMethod subjectNode "Token"
 
     let ruleUnderTest = JustifySuppressionRule()
-    let problems = ruleUnderTest.Check(offendingMethod)
+
+    let problems =
+      ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(1))
     let problem = problems.[0].Resolution
@@ -38,7 +42,8 @@ module Justifications =
 
   [<Test>]
   let BlankJustificationTest () =
-    let subject = AltCode.Dixon.TestData.Justifications()
+    let subject =
+      AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
@@ -46,7 +51,9 @@ module Justifications =
       Utilities.GetMethod subjectNode "EmptyToken"
 
     let ruleUnderTest = JustifySuppressionRule()
-    let problems = ruleUnderTest.Check(offendingMethod)
+
+    let problems =
+      ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(1))
     let problem = problems.[0].Resolution
@@ -54,7 +61,8 @@ module Justifications =
 
   [<Test>]
   let ShortJustificationTest () =
-    let subject = AltCode.Dixon.TestData.Justifications()
+    let subject =
+      AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
@@ -62,7 +70,9 @@ module Justifications =
       Utilities.GetMethod subjectNode "AnotherToken"
 
     let ruleUnderTest = JustifySuppressionRule()
-    let problems = ruleUnderTest.Check(offendingMethod)
+
+    let problems =
+      ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(1))
     let problem = problems.[0].Resolution
@@ -70,7 +80,8 @@ module Justifications =
 
   [<Test>]
   let EnoughJustificationTest () =
-    let subject = AltCode.Dixon.TestData.Justifications()
+    let subject =
+      AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
@@ -78,41 +89,54 @@ module Justifications =
       Utilities.GetMethod subjectNode "YetAnotherToken"
 
     let ruleUnderTest = JustifySuppressionRule()
-    let problems = ruleUnderTest.Check(offendingMethod)
+
+    let problems =
+      ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
 
   [<Test>]
   let NoSuppressionTest () =
-    let subject = AltCode.Dixon.TestData.Justifications()
+    let subject =
+      AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
-    let offendingMethod = Utilities.GetMethod subjectNode "Token4"
+    let offendingMethod =
+      Utilities.GetMethod subjectNode "Token4"
 
     let ruleUnderTest = JustifySuppressionRule()
-    let problems = ruleUnderTest.Check(offendingMethod)
+
+    let problems =
+      ruleUnderTest.Check(offendingMethod)
 
     Assert.That(problems.Count, Is.EqualTo(0))
 
   [<Test>]
   let NoSuppressionTypeTest () =
-    let subject = AltCode.Dixon.TestData.Justifications()
+    let subject =
+      AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
     let ruleUnderTest = JustifySuppressionRule()
-    let problems = ruleUnderTest.Check(subjectNode)
+
+    let problems =
+      ruleUnderTest.Check(subjectNode)
+
     Assert.That(problems.Count, Is.EqualTo(0))
 
   [<Test>]
   let NoSuppressionParameterTest () =
-    let subject = AltCode.Dixon.TestData.Justifications()
+    let subject =
+      AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 
     let ruleUnderTest = JustifySuppressionRule()
-    let offendingMethod = Utilities.GetMethod subjectNode "Token4"
+
+    let offendingMethod =
+      Utilities.GetMethod subjectNode "Token4"
 
     let problems =
       ruleUnderTest.Check(
@@ -124,7 +148,8 @@ module Justifications =
 
   [<Test>]
   let BlankAssemblyJustificationTest () =
-    let subject = AltCode.Dixon.TestData.Justifications()
+    let subject =
+      AltCode.Dixon.TestData.Justifications()
 
     let subjectNode = Utilities.GetType subject
 

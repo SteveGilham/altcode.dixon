@@ -15,9 +15,12 @@ type JustifySuppressionRule =
 
     // Default constructor as required
     new() =
-      { inherit BaseIntrospectionRule("JustifySuppression",
-                                      "altcode.dixon.Dixon.Design",
-                                      typeof<JustifySuppressionRule>.Assembly) }
+      { inherit
+          BaseIntrospectionRule(
+            "JustifySuppression",
+            "altcode.dixon.Dixon.Design",
+            typeof<JustifySuppressionRule>.Assembly
+          ) }
 
     // Overrides of every Check method
     override self.Check(``type``: TypeNode) =
@@ -36,8 +39,8 @@ type JustifySuppressionRule =
     member private self.VerifyAttributes attributes (context: Node) =
       attributes
       |> Seq.cast<AttributeNode>
-      |> Seq.filter
-           (fun attribute -> attribute.Type = FrameworkTypes.SuppressMessageAttribute)
+      |> Seq.filter (fun attribute ->
+        attribute.Type = FrameworkTypes.SuppressMessageAttribute)
       |> Seq.iter (self.CheckJustification context)
 
       self.Problems

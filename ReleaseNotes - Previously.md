@@ -1,3 +1,7 @@
+# 2022.1.8.13182
+
+* `DixonCmd` tool to extend FxCop support to netstandard2.0 (no other `dotnet` platform versions, at least not yet)
+
 # 2020.3.16.14542-pre-release
 
 * `ReraiseCorrectlyRule` (`Dixon.Design#DX0002`) : only `throw` an exception you've just created

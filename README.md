@@ -51,21 +51,21 @@ Some dependency lacks will be obvious from the error messages, but some are subt
 
 ## Developer/Contributor info
 
-### Build process from trunk as per `appveyor.yml`
+### Build process as per `.github\workflows\main.yml`
 
 Assumes VS2022 build environment
 
 * dotnet tool restore
-* dotnet fake run .\Build\setup.fsx
-* dotnet fake run .\Build\build.fsx
+* dotnet run --project .\Build\Setup.fsproj
+* dotnet run --project .\Build\Build.fsproj
 
 ### Direction
 The F# focus will include making rule variants that are more F# aware, to separate out the compiler generated clutter from the code the developer can affect -- avoiding smothering the code in `[<SuppressMessage>]`, or throwing rules out for poor signal to noise.  But there will inevitably be some more originals.
 
 ### Badges
-* [![Nuget](https://buildstats.info/nuget/altcode.dixon?includePreReleases=true)](https://www.nuget.org/packages/altcode.dixon)
-* [![Build status](https://img.shields.io/appveyor/ci/SteveGilham/altcode-dixon.svg)](https://ci.appveyor.com/project/SteveGilham/altcode-dixon)
-* ![Build history](https://buildstats.info/appveyor/chart/SteveGilham/altcode-dixon)
-* [![CI](https://github.com/SteveGilham/altcode.dixon/workflows/CI/badge.svg)](https://github.com/SteveGilham/altcode.dixon/actions?query=workflow%3ACI)
-* ![Build history](https://buildstats.info/github/chart/SteveGilham/altcode.dixon?branch=master)]
+[![Nuget](https://buildstats.info/nuget/altcode.dixon?includePreReleases=true)](https://www.nuget.org/packages/altcode.dixon)
+
+| | | |
+| --- | --- | --- | 
+| **Build** |<sup>GitHub</sup> [![CI](https://github.com/SteveGilham/altcode.dixon/workflows/CI/badge.svg)](https://github.com/SteveGilham/altcode.dixon/actions?query=workflow%3ACI) | [![Build history](https://buildstats.info/github/chart/SteveGilham/altcode.dixon?branch=master)](https://buildstats.info/github/chart/SteveGilham/altcode.dixon?branch=master)
 

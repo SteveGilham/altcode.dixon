@@ -7,6 +7,8 @@ open System.Reflection
 
 open Microsoft.FxCop.Sdk
 
+open AltCover.Shared
+
 module Utilities =
   [<SuppressMessage("Gendarme.Rules.BadPractice",
                     "AvoidCallingProblematicMethodsRule",
@@ -16,12 +18,15 @@ module Utilities =
       Assembly.GetExecutingAssembly().Location
       |> Path.GetDirectoryName
 
-    let targetAssembly = Path.Combine(here, assembly)
-    let source = Assembly.LoadFile(targetAssembly)
+    let targetAssembly =
+      Path.Combine(here, assembly)
+
+    let source =
+      Assembly.LoadFile(targetAssembly)
 
     let rule =
       source.GetTypes()
-      |> Seq.find (fun t -> t.Name = rule)
+      |> Seq.find (fun t -> t.Name == rule)
 
     rule.GetConstructor(Type.EmptyTypes).Invoke([||]) :?> BaseIntrospectionRule
 
@@ -29,7 +34,8 @@ module Utilities =
   [<assembly: SuppressMessage("Microsoft.Reliability",
                               "CA2001:AvoidCallingProblematicMethods",
                               Scope = "member",
-                              Target = "AltCode.Dixon.Utilities.#FindRuleClass(System.String,System.String)",
+                              Target =
+                                "AltCode.Dixon.Utilities.#FindRuleClass(System.String,System.String)",
                               MessageId = "System.Reflection.Assembly.LoadFile",
                               Justification = "desperate cases, desperate remedy")>]
 
@@ -39,7 +45,8 @@ module Utilities =
   [<assembly: SuppressMessage("Microsoft.Naming",
                               "CA1709:IdentifiersShouldBeCasedCorrectly",
                               Scope = "member",
-                              Target = "AltCode.Dixon.Utilities.#Member.get_IsFSharpCode(Microsoft.FxCop.Sdk.Member)",
+                              Target =
+                                "AltCode.Dixon.Utilities.#Member.get_IsFSharpCode(Microsoft.FxCop.Sdk.Member)",
                               MessageId = "get",
                               Justification = "> ten characters")>]
   //CA1704 : Microsoft.Naming : In method 'Utilities.Member.get_IsFSharpCode(Member)',
@@ -48,7 +55,8 @@ module Utilities =
   [<assembly: SuppressMessage("Microsoft.Naming",
                               "CA1704:IdentifiersShouldBeSpelledCorrectly",
                               Scope = "member",
-                              Target = "AltCode.Dixon.Utilities.#Member.get_IsFSharpCode(Microsoft.FxCop.Sdk.Member)",
+                              Target =
+                                "AltCode.Dixon.Utilities.#Member.get_IsFSharpCode(Microsoft.FxCop.Sdk.Member)",
                               MessageId = "param",
                               Justification = "> ten characters")>]
   //CA1707 : Microsoft.Naming : Remove the underscores from member name
@@ -56,14 +64,16 @@ module Utilities =
   [<assembly: SuppressMessage("Microsoft.Naming",
                               "CA1707:IdentifiersShouldNotContainUnderscores",
                               Scope = "member",
-                              Target = "AltCode.Dixon.Utilities.#Member.get_IsFSharpCode(Microsoft.FxCop.Sdk.Member)",
+                              Target =
+                                "AltCode.Dixon.Utilities.#Member.get_IsFSharpCode(Microsoft.FxCop.Sdk.Member)",
                               Justification = "> ten characters")>]
   //CA1709 : Microsoft.Naming : Correct the casing of 'get' in member name
   // 'Utilities.Object.get_IsNotNull(object)' by changing it to 'Get'.
   [<assembly: SuppressMessage("Microsoft.Naming",
                               "CA1709:IdentifiersShouldBeCasedCorrectly",
                               Scope = "member",
-                              Target = "AltCode.Dixon.Utilities.#Object.get_IsNotNull(System.Object)",
+                              Target =
+                                "AltCode.Dixon.Utilities.#Object.get_IsNotNull(System.Object)",
                               MessageId = "get",
                               Justification = "> ten characters")>]
   //CA1704 : Microsoft.Naming : In method 'Utilities.Object.get_IsNotNull(object)',
@@ -72,7 +82,8 @@ module Utilities =
   [<assembly: SuppressMessage("Microsoft.Naming",
                               "CA1704:IdentifiersShouldBeSpelledCorrectly",
                               Scope = "member",
-                              Target = "AltCode.Dixon.Utilities.#Object.get_IsNotNull(System.Object)",
+                              Target =
+                                "AltCode.Dixon.Utilities.#Object.get_IsNotNull(System.Object)",
                               MessageId = "param",
                               Justification = "> ten characters")>]
   //CA1707 : Microsoft.Naming : Remove the underscores from member name
@@ -80,7 +91,8 @@ module Utilities =
   [<assembly: SuppressMessage("Microsoft.Naming",
                               "CA1707:IdentifiersShouldNotContainUnderscores",
                               Scope = "member",
-                              Target = "AltCode.Dixon.Utilities.#Object.get_IsNotNull(System.Object)",
+                              Target =
+                                "AltCode.Dixon.Utilities.#Object.get_IsNotNull(System.Object)",
                               Justification = "> ten characters")>]
   ()
 
@@ -90,8 +102,11 @@ module Utilities =
   type Microsoft.FxCop.Sdk.Member with
     member self.HasAttribute typeName =
       self.Attributes
-      |> Seq.exists (fun a -> a.Type.FullName = typeName)
+      |> Seq.exists (fun a -> a.Type.FullName == typeName)
 
+    [<SuppressMessage("Gendarme.Rules.Globalization",
+                      "PreferStringComparisonOverrideRule",
+                      Justification = ".Contains overload not available at net472")>]
     member self.IsFSharpCode =
       self.IsNotNull
       && match self with
@@ -111,21 +126,24 @@ module Utilities =
   [<assembly: SuppressMessage("Microsoft.Naming",
                               "CA1709:IdentifiersShouldBeCasedCorrectly",
                               Scope = "member",
-                              Target = "AltCode.Dixon.Utilities.#Option`1.getOrElse.Static`1(!!0,Microsoft.FSharp.Core.FSharpOption`1<!!0>)",
+                              Target =
+                                "AltCode.Dixon.Utilities.#Option`1.getOrElse.Static`1(!!0,Microsoft.FSharp.Core.FSharpOption`1<!!0>)",
                               MessageId = "get",
                               Justification = "to be fixed at source")>]
   // CA1704 : In method 'Utilities.Option`1.getOrElse.Static<T>(T, FSharpOption<T>)', correct the spelling of 'fallback' in parameter name 'fallback' or remove it entirely if it represents any sort of Hungarian notation.
   [<assembly: SuppressMessage("Microsoft.Naming",
                               "CA1704:IdentifiersShouldBeSpelledCorrectly",
                               Scope = "member",
-                              Target = "AltCode.Dixon.Utilities.#Option`1.getOrElse.Static`1(!!0,Microsoft.FSharp.Core.FSharpOption`1<!!0>)",
+                              Target =
+                                "AltCode.Dixon.Utilities.#Option`1.getOrElse.Static`1(!!0,Microsoft.FSharp.Core.FSharpOption`1<!!0>)",
                               MessageId = "fallback",
                               Justification = "tto be fixed at source")>]
   // CA1704 : In method 'Utilities.Option`1.getOrElse.Static<T>(T, FSharpOption<T>)', consider providing a more meaningful name than parameter name 'x'.
   [<assembly: SuppressMessage("Microsoft.Naming",
                               "CA1704:IdentifiersShouldBeSpelledCorrectly",
                               Scope = "member",
-                              Target = "AltCode.Dixon.Utilities.#Option`1.getOrElse.Static`1(!!0,Microsoft.FSharp.Core.FSharpOption`1<!!0>)",
+                              Target =
+                                "AltCode.Dixon.Utilities.#Option`1.getOrElse.Static`1(!!0,Microsoft.FSharp.Core.FSharpOption`1<!!0>)",
                               MessageId = "x",
                               Justification = "to be fixed at source")>]
   ()
