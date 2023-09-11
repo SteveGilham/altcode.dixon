@@ -31,6 +31,13 @@ module Setup =
     "dotnet"
     |> Fake.Core.ProcessUtils.tryFindFileOnPath
 
+  let cliArguments =
+    { MSBuild.CliArguments.Create() with
+        ConsoleLogParameters = []
+        DistributedLoggers = None
+        Properties = []
+        DisableInternalBinLog = true }
+
   let dotnetOptions (o: DotNet.Options) =
     match dotnetPath with
     | Some f -> { o with DotNetCliPath = f }
@@ -40,6 +47,7 @@ module Setup =
     (fun o ->
       { o with
           Packages = [ "./packages" ]
+          MSBuildParams = cliArguments
           Common = dotnetOptions o.Common })
     "./Build/NuGet.csproj"
 
@@ -110,7 +118,6 @@ module Setup =
     Target.activateFinal "ResetConsoleColours"
 
     _Target "Preparation" Preparation
-
 
   let defaultTarget () =
     resetColours ()

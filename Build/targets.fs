@@ -77,7 +77,8 @@ module Targets =
         Verbosity = Some DotNet.Verbosity.Minimal }
 
   let withWorkingDirectoryOnly dir o =
-    { dotnetOptions o with WorkingDirectory = Path.getFullName dir }
+    { dotnetOptions o with
+        WorkingDirectory = Path.getFullName dir }
 
   let withCLIArgs (o: Fake.DotNet.DotNet.TestOptions) =
     { o with MSBuildParams = cliArguments }
@@ -385,7 +386,21 @@ module Targets =
       |> Seq.iter (fun f ->
         let dir = Path.GetDirectoryName f
         let proj = Path.GetFileName f
-        DotNet.restore (fun o -> o.WithCommon(withWorkingDirectoryVM dir)) proj))
+
+        DotNet.restore
+          (fun o ->
+            let tmp =
+              o.WithCommon(withWorkingDirectoryVM dir)
+
+            let mparams =
+              { tmp.MSBuildParams with
+                  ConsoleLogParameters = []
+                  DistributedLoggers = None
+                  DisableInternalBinLog = true
+                  Properties = tmp.MSBuildParams.Properties }
+
+            { tmp with MSBuildParams = mparams })
+          proj))
 
   let BuildRelease =
     (fun _ -> "./altcode.dixon.sln" |> msbuildRelease)
@@ -475,16 +490,16 @@ module Targets =
         try
           files
           |> FxCop.run
-               { FxCop.Params.Create() with
-                   WorkingDirectory = "."
-                   ToolPath = fxcop
-                   UseGAC = true
-                   Verbose = false
-                   ReportFileName = "_Reports/FxCopReport.xml"
-                   Types = types
-                   Rules = ruleset
-                   FailOnError = FxCop.ErrorLevel.Warning
-                   IgnoreGeneratedCode = true }
+            { FxCop.Params.Create() with
+                WorkingDirectory = "."
+                ToolPath = fxcop
+                UseGAC = true
+                Verbose = false
+                ReportFileName = "_Reports/FxCopReport.xml"
+                Types = types
+                Rules = ruleset
+                FailOnError = FxCop.ErrorLevel.Warning
+                IgnoreGeneratedCode = true }
         with _ ->
           dumpSuppressions "_Reports/FxCopReport.xml"
           reraise ()))
@@ -594,7 +609,7 @@ module Targets =
       uncovered @"_Reports/_UnitTestWithAltCover/Summary.xml"
       |> printfn "%A uncovered lines"
 
-      )
+    )
   // Pure OperationalTests
 
   //_Target "OperationalTest" ignore
@@ -710,7 +725,19 @@ module Targets =
 
       DotNet.restore
         (fun o ->
-          { o.WithCommon(withWorkingDirectoryVM unpack) with Packages = [ "./packages" ] })
+          let tmp =
+            o.WithCommon(withWorkingDirectoryVM unpack)
+
+          let mparams =
+            { tmp.MSBuildParams with
+                ConsoleLogParameters = []
+                DistributedLoggers = None
+                DisableInternalBinLog = true
+                Properties = tmp.MSBuildParams.Properties }
+
+          { tmp with
+              Packages = [ "./packages" ]
+              MSBuildParams = mparams })
         proj
 
       let vname = Version.Value + badge
@@ -722,8 +749,8 @@ module Targets =
       printfn "Copying from %A to %A" from unpack
       Shell.copyDir unpack from (fun _ -> true)
 
-      // TODO
-      )
+    // TODO
+    )
 
   // AOB
 
