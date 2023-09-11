@@ -73,8 +73,8 @@ let main argv =
     )
 
   let ptype =
-    typeof<PlatformInfo>.Assembly.GetType
-      ("Microsoft.VisualStudio.CodeAnalysis.PlatformType")
+    typeof<PlatformInfo>.Assembly
+      .GetType("Microsoft.VisualStudio.CodeAnalysis.PlatformType")
 
   let unknown = Enum.Parse(ptype, "Unknown")
 
@@ -180,14 +180,14 @@ let main argv =
   let pi3 = pi.GetValue(add3) :?> PlatformInfo
 
   let pin =
-    typeof<PlatformInfo>.GetProperty
-      ("PlatformType", BindingFlags.NonPublic ||| BindingFlags.Instance)
+    typeof<PlatformInfo>
+      .GetProperty("PlatformType", BindingFlags.NonPublic ||| BindingFlags.Instance)
 
   pin.SetValue(pi3, pin.GetValue(pi1))
 
   let piv =
-    typeof<PlatformInfo>.GetProperty
-      ("PlatformVersion", BindingFlags.Public ||| BindingFlags.Instance)
+    typeof<PlatformInfo>
+      .GetProperty("PlatformVersion", BindingFlags.Public ||| BindingFlags.Instance)
 
   piv.SetValue(pi3, Version(2, 0, 0, 0))
 
