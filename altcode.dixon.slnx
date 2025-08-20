@@ -1,0 +1,31 @@
+<Solution>
+  <Folder Name="/BuildItems/">
+    <File Path=".config/dotnet-tools.json" />
+    <File Path=".github/workflows/main.yml" />
+    <File Path="Build/actions.fs" />
+    <File Path="Build/altcode.dixon.nuspec" />
+    <File Path="Build/build.fs" />
+    <File Path="Build/common-rules.xml" />
+    <File Path="Build/Infrastructure.snk" />
+    <File Path="Build/setup.fs" />
+    <File Path="Build/targets.fs" />
+    <File Path="global.json" />
+    <Project Path="Build/NuGet.csproj">
+      <Build Project="false" />
+    </Project>
+  </Folder>
+  <Project Path="altcode.dixon.testdata/altcode.dixon.testdata.csproj">
+    <Build Solution="Release|*" Project="false" />
+  </Project>
+  <Project Path="altcode.dixon.tests/altcode.dixon.tests.fsproj">
+    <Build Solution="Release|*" Project="false" />
+  </Project>
+  <Project Path="altcode.dixon/altcode.dixon.fsproj">
+    <Platform Project="x86" />
+  </Project>
+  <Project Path="FixCop/FixCop.fsproj">
+    <BuildDependency Project="netstandard/netstandard.csproj" />
+    <Platform Project="x86" />
+  </Project>
+  <Project Path="netstandard/netstandard.csproj" />
+</Solution>

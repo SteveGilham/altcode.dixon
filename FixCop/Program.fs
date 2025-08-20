@@ -35,9 +35,7 @@ let main argv =
   let verbose =
     System.Diagnostics.TraceLevel.Verbose
 
-  catrace
-    .GetProperty("TraceLevel")
-    .SetValue(null, verbose)
+  catrace.GetProperty("TraceLevel").SetValue(null, verbose)
 
   // interop info
   let cainterop =
