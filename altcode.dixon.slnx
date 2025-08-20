@@ -2,13 +2,13 @@
   <Folder Name="/BuildItems/">
     <File Path=".config/dotnet-tools.json" />
     <File Path=".github/workflows/main.yml" />
-    <File Path="Build/actions.fsx" />
+    <File Path="Build/actions.fs" />
     <File Path="Build/altcode.dixon.nuspec" />
-    <File Path="Build/build.fsx" />
+    <File Path="Build/build.fs" />
     <File Path="Build/common-rules.xml" />
     <File Path="Build/Infrastructure.snk" />
-    <File Path="Build/setup.fsx" />
-    <File Path="Build/targets.fsx" />
+    <File Path="Build/setup.fs" />
+    <File Path="Build/targets.fs" />
     <File Path="global.json" />
     <Project Path="Build/NuGet.csproj">
       <Build Project="false" />
