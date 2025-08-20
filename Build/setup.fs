@@ -86,7 +86,6 @@ module Setup =
 
   let Preparation =
     (fun _ ->
-      RestoreMSSolutionPackages restore "./altcode.dixon.sln"
       Directory.ensure "./packages/fxcop/"
 
       let target =

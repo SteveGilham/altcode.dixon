@@ -322,10 +322,7 @@ module Targets =
       let now = DateTime.Now
 
       let time =
-        now
-          .ToString("HHmmss")
-          .Substring(0, 5)
-          .TrimStart('0')
+        now.ToString("HHmmss").Substring(0, 5).TrimStart('0')
 
       let y0 = now.Year
       let m0 = now.Month
@@ -382,7 +379,7 @@ module Targets =
 
   let Restore =
     (fun _ ->
-      (!! "./**/*.*proj")
+      (!!"./**/*.*proj")
       |> Seq.iter (fun f ->
         let dir = Path.GetDirectoryName f
         let proj = Path.GetFileName f
@@ -403,10 +400,10 @@ module Targets =
           proj))
 
   let BuildRelease =
-    (fun _ -> "./altcode.dixon.sln" |> msbuildRelease)
+    (fun _ -> "./altcode.dixon.slnx" |> msbuildRelease)
 
   let BuildDebug =
-    (fun _ -> "./altcode.dixon.sln" |> msbuildDebug)
+    (fun _ -> "./altcode.dixon.slnx" |> msbuildDebug)
 
   // Code Analysis
 
@@ -430,9 +427,8 @@ module Targets =
       let failOnIssuesFound (issuesFound: bool) =
         Assert.That(issuesFound, Is.False, "Lint issues were found")
 
-      [ !! "./**/*.fsproj"
-        |> Seq.sortBy (Path.GetFileName)
-        !! "./Build/*.fsx" |> Seq.map Path.GetFullPath ]
+      [ !!"./**/*.fsproj" |> Seq.sortBy (Path.GetFileName)
+        !!"./Build/*.fsx" |> Seq.map Path.GetFullPath ]
       |> Seq.concat
       |> Seq.map doLintAsync
       |> throttle
@@ -759,7 +755,7 @@ module Targets =
       printfn "Overall coverage reporting"
       Directory.ensure "./_Reports/_BulkReport"
 
-      !! "./_Reports/*.xml"
+      !!"./_Reports/*.xml"
       |> Seq.filter (fun f ->
         not
         <| f.EndsWith("Report.xml", StringComparison.OrdinalIgnoreCase))
@@ -780,7 +776,7 @@ module Targets =
            |> String.IsNullOrWhiteSpace
            |> not
       then
-        (!! "./_Packagin*/*.nupkg")
+        (!!"./_Packagin*/*.nupkg")
         |> Seq.iter (fun f ->
           printfn "Publishing %A from %A" f currentBranch
 
