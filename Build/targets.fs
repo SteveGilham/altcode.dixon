@@ -450,8 +450,8 @@ module Targets =
 
       [ (rules, [ "_Binaries/AltCode.Dixon/Debug+x86/net472/AltCode.Dixon.dll" ])
         (Path.getFullName "./Build/build-rules.xml",
-         [ Path.GetFullPath "./$Binaries/Build/Debug+AnyCPU/net7.0/Build.dll"
-           Path.GetFullPath "./$Binaries/Setup/Debug+AnyCPU/net7.0/Setup.dll" ]) ]
+         [ Path.GetFullPath "./$Binaries/Build/Debug+AnyCPU/net10.0/Build.dll"
+           Path.GetFullPath "./$Binaries/Setup/Debug+AnyCPU/net10.0/Setup.dll" ]) ]
       |> Seq.iter (fun (ruleset, files) ->
         Gendarme.run
           { Gendarme.Params.Create() with
