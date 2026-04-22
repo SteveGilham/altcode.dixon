@@ -168,33 +168,25 @@ module Targets =
           numeric))
     |> Seq.toList
 
-  let msbuildRelease proj =
-    MSBuild.build
-      (fun p ->
-        { p with
-            Verbosity = Some MSBuildVerbosity.Normal
-            ConsoleLogParameters = []
-            DistributedLoggers = None
-            DisableInternalBinLog = true
-            DoRestore = true
-            Properties =
-              [ "Configuration", "Release"
-                "DebugSymbols", "True" ] })
-      proj
+  let buildWithCLIArguments (o: Fake.DotNet.DotNet.BuildOptions) =
+    { o with MSBuildParams = cliArguments }
 
-  let msbuildDebug proj =
-    MSBuild.build
+  let dotnetBuildRelease proj =
+    DotNet.build
       (fun p ->
         { p with
-            Verbosity = Some MSBuildVerbosity.Normal
-            ConsoleLogParameters = []
-            DistributedLoggers = None
-            DisableInternalBinLog = true
-            DoRestore = true
-            Properties =
-              [ "Configuration", "Debug"
-                "DebugSymbols", "True" ] })
-      proj
+            Configuration = DotNet.BuildConfiguration.Release }
+        |> buildWithCLIArguments)
+      (Path.GetFullPath proj)
+
+  let dotnetBuildDebug proj =
+    DotNet.build
+      (fun p ->
+        { p with
+            Configuration = DotNet.BuildConfiguration.Debug }
+        |> buildWithCLIArguments)
+      (Path.GetFullPath proj)
+
 
   let dumpSuppressions (report: String) =
     let x = XDocument.Load report
@@ -404,10 +396,10 @@ module Targets =
           proj))
 
   let BuildRelease =
-    (fun _ -> "./altcode.dixon.slnx" |> msbuildRelease)
+    (fun _ -> "./altcode.dixon.slnx" |> dotnetBuildRelease)
 
   let BuildDebug =
-    (fun _ -> "./altcode.dixon.slnx" |> msbuildDebug)
+    (fun _ -> "./altcode.dixon.slnx" |> dotnetBuildDebug)
 
   // Code Analysis
 
