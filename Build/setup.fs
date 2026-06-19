@@ -93,7 +93,7 @@ module Setup =
 
       let fxcop =
         BlackFox.VsWhere.VsInstances.getAll ()
-        |> Seq.filter (fun i -> System.Version(i.InstallationVersion).Major > 15) // 2019 or later
+        |> Seq.filter (fun i -> System.Version(i.InstallationVersion).Major = 18) // VS 2026
         |> Seq.sortByDescending (fun i -> System.Version(i.InstallationVersion))
         |> Seq.map (fun i ->
           i.InstallationPath
