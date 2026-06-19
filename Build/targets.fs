@@ -77,7 +77,8 @@ module Targets =
         Verbosity = Some DotNet.Verbosity.Minimal }
 
   let withWorkingDirectoryOnly dir o =
-    { dotnetOptions o with WorkingDirectory = Path.getFullName dir }
+    { dotnetOptions o with
+        WorkingDirectory = Path.getFullName dir }
 
   let withCLIArgs (o: Fake.DotNet.DotNet.TestOptions) =
     { o with MSBuildParams = cliArguments }
@@ -167,33 +168,25 @@ module Targets =
           numeric))
     |> Seq.toList
 
-  let msbuildRelease proj =
-    MSBuild.build
-      (fun p ->
-        { p with
-            Verbosity = Some MSBuildVerbosity.Normal
-            ConsoleLogParameters = []
-            DistributedLoggers = None
-            DisableInternalBinLog = true
-            DoRestore = true
-            Properties =
-              [ "Configuration", "Release"
-                "DebugSymbols", "True" ] })
-      proj
+  let buildWithCLIArguments (o: Fake.DotNet.DotNet.BuildOptions) =
+    { o with MSBuildParams = cliArguments }
 
-  let msbuildDebug proj =
-    MSBuild.build
+  let dotnetBuildRelease proj =
+    DotNet.build
       (fun p ->
         { p with
-            Verbosity = Some MSBuildVerbosity.Normal
-            ConsoleLogParameters = []
-            DistributedLoggers = None
-            DisableInternalBinLog = true
-            DoRestore = true
-            Properties =
-              [ "Configuration", "Debug"
-                "DebugSymbols", "True" ] })
-      proj
+            Configuration = DotNet.BuildConfiguration.Release }
+        |> buildWithCLIArguments)
+      (Path.GetFullPath proj)
+
+  let dotnetBuildDebug proj =
+    DotNet.build
+      (fun p ->
+        { p with
+            Configuration = DotNet.BuildConfiguration.Debug }
+        |> buildWithCLIArguments)
+      (Path.GetFullPath proj)
+
 
   let dumpSuppressions (report: String) =
     let x = XDocument.Load report
@@ -321,10 +314,11 @@ module Targets =
       let now = DateTime.Now
 
       let time =
-        now
-          .ToString("HHmmss")
-          .Substring(0, 5)
-          .TrimStart('0')
+        let raw = now.ToString("HHmmss").Substring(0, 5).TrimStart('0')
+        if String.IsNullOrEmpty raw then
+          "0"
+        else
+          raw
 
       let y0 = now.Year
       let m0 = now.Month
@@ -381,17 +375,31 @@ module Targets =
 
   let Restore =
     (fun _ ->
-      (!! "./**/*.*proj")
+      (!!"./**/*.*proj")
       |> Seq.iter (fun f ->
         let dir = Path.GetDirectoryName f
         let proj = Path.GetFileName f
-        DotNet.restore (fun o -> o.WithCommon(withWorkingDirectoryVM dir)) proj))
+
+        DotNet.restore
+          (fun o ->
+            let tmp =
+              o.WithCommon(withWorkingDirectoryVM dir)
+
+            let mparams =
+              { tmp.MSBuildParams with
+                  ConsoleLogParameters = []
+                  DistributedLoggers = None
+                  DisableInternalBinLog = true
+                  Properties = tmp.MSBuildParams.Properties }
+
+            { tmp with MSBuildParams = mparams })
+          proj))
 
   let BuildRelease =
-    (fun _ -> "./altcode.dixon.sln" |> msbuildRelease)
+    (fun _ -> "./altcode.dixon.slnx" |> dotnetBuildRelease)
 
   let BuildDebug =
-    (fun _ -> "./altcode.dixon.sln" |> msbuildDebug)
+    (fun _ -> "./altcode.dixon.slnx" |> dotnetBuildDebug)
 
   // Code Analysis
 
@@ -415,9 +423,8 @@ module Targets =
       let failOnIssuesFound (issuesFound: bool) =
         Assert.That(issuesFound, Is.False, "Lint issues were found")
 
-      [ !! "./**/*.fsproj"
-        |> Seq.sortBy (Path.GetFileName)
-        !! "./Build/*.fsx" |> Seq.map Path.GetFullPath ]
+      [ !!"./**/*.fsproj" |> Seq.sortBy (Path.GetFileName)
+        !!"./Build/*.fsx" |> Seq.map Path.GetFullPath ]
       |> Seq.concat
       |> Seq.map doLintAsync
       |> throttle
@@ -435,8 +442,8 @@ module Targets =
 
       [ (rules, [ "_Binaries/AltCode.Dixon/Debug+x86/net472/AltCode.Dixon.dll" ])
         (Path.getFullName "./Build/build-rules.xml",
-         [ Path.GetFullPath "./$Binaries/Build/Debug+AnyCPU/net7.0/Build.dll"
-           Path.GetFullPath "./$Binaries/Setup/Debug+AnyCPU/net7.0/Setup.dll" ]) ]
+         [ Path.GetFullPath "./$Binaries/Build/Debug+AnyCPU/net10.0/Build.dll"
+           Path.GetFullPath "./$Binaries/Setup/Debug+AnyCPU/net10.0/Setup.dll" ]) ]
       |> Seq.iter (fun (ruleset, files) ->
         Gendarme.run
           { Gendarme.Params.Create() with
@@ -475,16 +482,16 @@ module Targets =
         try
           files
           |> FxCop.run
-               { FxCop.Params.Create() with
-                   WorkingDirectory = "."
-                   ToolPath = fxcop
-                   UseGAC = true
-                   Verbose = false
-                   ReportFileName = "_Reports/FxCopReport.xml"
-                   Types = types
-                   Rules = ruleset
-                   FailOnError = FxCop.ErrorLevel.Warning
-                   IgnoreGeneratedCode = true }
+            { FxCop.Params.Create() with
+                WorkingDirectory = "."
+                ToolPath = fxcop
+                UseGAC = true
+                Verbose = false
+                ReportFileName = "_Reports/FxCopReport.xml"
+                Types = types
+                Rules = ruleset
+                FailOnError = FxCop.ErrorLevel.Warning
+                IgnoreGeneratedCode = true }
         with _ ->
           dumpSuppressions "_Reports/FxCopReport.xml"
           reraise ()))
@@ -594,7 +601,7 @@ module Targets =
       uncovered @"_Reports/_UnitTestWithAltCover/Summary.xml"
       |> printfn "%A uncovered lines"
 
-      )
+    )
   // Pure OperationalTests
 
   //_Target "OperationalTest" ignore
@@ -710,7 +717,19 @@ module Targets =
 
       DotNet.restore
         (fun o ->
-          { o.WithCommon(withWorkingDirectoryVM unpack) with Packages = [ "./packages" ] })
+          let tmp =
+            o.WithCommon(withWorkingDirectoryVM unpack)
+
+          let mparams =
+            { tmp.MSBuildParams with
+                ConsoleLogParameters = []
+                DistributedLoggers = None
+                DisableInternalBinLog = true
+                Properties = tmp.MSBuildParams.Properties }
+
+          { tmp with
+              Packages = [ "./packages" ]
+              MSBuildParams = mparams })
         proj
 
       let vname = Version.Value + badge
@@ -722,8 +741,8 @@ module Targets =
       printfn "Copying from %A to %A" from unpack
       Shell.copyDir unpack from (fun _ -> true)
 
-      // TODO
-      )
+    // TODO
+    )
 
   // AOB
 
@@ -732,7 +751,7 @@ module Targets =
       printfn "Overall coverage reporting"
       Directory.ensure "./_Reports/_BulkReport"
 
-      !! "./_Reports/*.xml"
+      !!"./_Reports/*.xml"
       |> Seq.filter (fun f ->
         not
         <| f.EndsWith("Report.xml", StringComparison.OrdinalIgnoreCase))
@@ -753,7 +772,7 @@ module Targets =
            |> String.IsNullOrWhiteSpace
            |> not
       then
-        (!! "./_Packagin*/*.nupkg")
+        (!!"./_Packagin*/*.nupkg")
         |> Seq.iter (fun f ->
           printfn "Publishing %A from %A" f currentBranch
 
@@ -874,5 +893,3 @@ module Targets =
   let defaultTarget () =
     resetColours ()
     "All"
-
-  Target.runOrDefault <| defaultTarget ()

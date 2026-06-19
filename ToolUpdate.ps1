@@ -1,0 +1,4 @@
+& dotnet tool update dotnet-reportgenerator-globaltool
+& dotnet tool update altcode.gendarme-tool
+& dotnet tool update dotnet-fsharplint
+& dotnet tool update -g fantomas

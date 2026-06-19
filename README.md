@@ -1,5 +1,5 @@
 # altcode.dixon
-FxCop v17 (Visual Studio 2022) rule extensions and related code.  A project named for that well known police constable of yesteryear.  Intended for use with F#, since we don't have Roslyn analyzers there.
+FxCop v18 (Visual Studio 2026) rule extensions and related code.  A project named for that well known police constable of yesteryear.  Intended for use with F#, since we don't have Roslyn analyzers there.
 
 ## Features
 ### FxCop for `netstandard2.0`
@@ -53,7 +53,7 @@ Some dependency lacks will be obvious from the error messages, but some are subt
 
 ### Build process as per `.github\workflows\main.yml`
 
-Assumes VS2022 build environment
+Assumes VS2026 build environment
 
 * dotnet tool restore
 * dotnet run --project .\Build\Setup.fsproj

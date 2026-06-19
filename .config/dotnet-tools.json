@@ -3,22 +3,25 @@
   "isRoot": true,
   "tools": {
     "dotnet-reportgenerator-globaltool": {
-      "version": "5.1.12",
+      "version": "5.5.10",
       "commands": [
         "reportgenerator"
-      ]
+      ],
+      "rollForward": false
     },
     "dotnet-fsharplint": {
-      "version": "0.21.3",
+      "version": "0.27.0",
       "commands": [
         "dotnet-fsharplint"
-      ]
+      ],
+      "rollForward": false
     },
     "altcode.gendarme-tool": {
-      "version": "2022.12.6.7345",
+      "version": "2026.2.11.18114",
       "commands": [
         "gendarme"
-      ]
+      ],
+      "rollForward": false
     }
   }
 }
