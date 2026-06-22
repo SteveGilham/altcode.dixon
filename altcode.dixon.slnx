@@ -14,6 +14,11 @@
       <Build Project="false" />
     </Project>
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+    <File Path="ReleaseNotes - Previously.md" />
+    <File Path="ReleaseNotes.md" />
+  </Folder>
   <Project Path="altcode.dixon.testdata/altcode.dixon.testdata.csproj">
     <Build Solution="Release|*" Project="false" />
   </Project>
