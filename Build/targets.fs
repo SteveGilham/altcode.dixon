@@ -314,7 +314,9 @@ module Targets =
       let now = DateTime.Now
 
       let time =
-        let raw = now.ToString("HHmmss").Substring(0, 5).TrimStart('0')
+        let raw =
+          now.ToString("HHmmss").Substring(0, 5).TrimStart('0')
+
         if String.IsNullOrEmpty raw then
           "0"
         else
