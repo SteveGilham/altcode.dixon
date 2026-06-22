@@ -1,3 +1,7 @@
+# 2026.6.22.13110 
+
+* No functional changes from previous release v2022.12.6.11014, but built against FxCop 18 (Visual Studio 2026)
+
 # 2022.12.6.11014
 
 * No functional changes from previous release v2022.1.8.13182, just build system changes.
