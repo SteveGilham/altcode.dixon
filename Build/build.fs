@@ -27,3 +27,12 @@ module Build =
     Target.runOrDefault <| Targets.defaultTarget ()
 
     0
+
+[<assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Gendarme.Rules.Performance",
+                                                            "OverrideValueTypeDefaultsRule",
+                                                            Scope = "type", // TypeDefinition
+                                                            Target =
+                                                              "AltCode.Dixon.Actions/T_12Bytes@",
+                                                            Justification =
+                                                              "Compiler generated buffer type")>]
+()
