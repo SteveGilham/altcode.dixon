@@ -6,7 +6,7 @@
     <PackageVersion Include="altcode.gendarme" Version="2026.8.12.15560" />
     <PackageVersion Include="altcover" Version="9.0.102" />
     <PackageVersion Include="AltCover.Api" Version="8.5.841" />
-    <PackageVersion Include="AltCover.Fake" Version="9.0.102" />
+    <PackageVersion Include="AltCover.Fake" Version="9.0.145" />
     <PackageVersion Include="BlackFox.CommandLine" Version="1.0.0" />
     <PackageVersion Include="BlackFox.VsWhere" Version="1.1.0" />
     <PackageVersion Include="CommunityToolkit.Diagnostics" Version="8.0.0" />
