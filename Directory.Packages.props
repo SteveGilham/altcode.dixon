@@ -16,7 +16,7 @@
     <PackageVersion Include="Expecto" Version="9.0.4" />
     <PackageVersion Include="Expecto.FsCheck" Version="9.0.4" />
     <PackageVersion Include="Expecto.TestResults" Version="8.13.2" />
-    <PackageVersion Include="FAKE.Core.Environment" Version="6.1.4" />
+    <PackageVersion Include="FAKE.Core.Environment" Version="6.2.0" />
     <PackageVersion Include="FAKE.Core.Process" Version="6.1.4" />
     <PackageVersion Include="FAKE.Core.Target" Version="6.1.4" />
     <PackageVersion Include="FAKE.DotNet.AssemblyInfoFile" Version="6.1.4" />
