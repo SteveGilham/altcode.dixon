@@ -17,12 +17,14 @@ type ReraiseCorrectlyRule =
 
     // Default constructor as required
     new() =
-      { inherit
+      {
+        inherit
           BaseIntrospectionRule(
             "ReraiseCorrectly",
             "altcode.dixon.Dixon.Design",
             typeof<ReraiseCorrectlyRule>.Assembly
-          ) }
+          )
+      }
 
     override self.Check(``member``: Member) =
       match ``member`` with

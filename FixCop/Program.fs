@@ -71,8 +71,8 @@ let main argv =
     )
 
   let ptype =
-    typeof<PlatformInfo>.Assembly
-      .GetType("Microsoft.VisualStudio.CodeAnalysis.PlatformType")
+    typeof<PlatformInfo>
+      .Assembly.GetType("Microsoft.VisualStudio.CodeAnalysis.PlatformType")
 
   let unknown = Enum.Parse(ptype, "Unknown")
 
@@ -89,11 +89,13 @@ let main argv =
     platform.GetConstructor(
       BindingFlags.NonPublic ||| BindingFlags.Instance,
       null,
-      [| ptype
-         typeof<AssemblyName>
-         typeof<IAssemblyNameMap>
-         typeof<IEnumerable<string>>
-         typeof<string> |],
+      [|
+        ptype
+        typeof<AssemblyName>
+        typeof<IAssemblyNameMap>
+        typeof<IEnumerable<string>>
+        typeof<string>
+      |],
       null
     )
 
@@ -133,34 +135,42 @@ let main argv =
 
   adder.Invoke(
     uMap,
-    [| netstdlib20 :> obj
-       netstdlib21 :> obj |]
+    [|
+      netstdlib20 :> obj
+      netstdlib21 :> obj
+    |]
   )
   |> ignore
 
   adder.Invoke(
     uMap,
-    [| netstdlib21 :> obj
-       netstdlib20 :> obj |]
+    [|
+      netstdlib21 :> obj
+      netstdlib20 :> obj
+    |]
   )
   |> ignore
 
   let add =
     makePlatform.Invoke(
-      [| unknown
-         netstdlib21
-         uMap
-         [ here ]
-         netstd21 |]
+      [|
+        unknown
+        netstdlib21
+        uMap
+        [ here ]
+        netstd21
+      |]
     )
 
   let add3 =
     makePlatform.Invoke(
-      [| unknown
-         netstdlib20
-         uMap
-         List.empty<string>
-         netstd20 |]
+      [|
+        unknown
+        netstdlib20
+        uMap
+        List.empty<string>
+        netstd20
+      |]
     )
 
   let nextv =

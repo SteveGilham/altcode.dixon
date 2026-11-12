@@ -2,4 +2,4 @@
 *.fsi
 Abstract.fs
 *.AssemblyAttributes.fs
-*/_Generated/*.fs
+_Generated/*.fs

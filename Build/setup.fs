@@ -36,7 +36,8 @@ module Setup =
         ConsoleLogParameters = []
         DistributedLoggers = None
         Properties = []
-        DisableInternalBinLog = true }
+        DisableInternalBinLog = true
+    }
 
   let dotnetOptions (o: DotNet.Options) =
     match dotnetPath with
@@ -48,7 +49,8 @@ module Setup =
       { o with
           Packages = [ "./packages" ]
           MSBuildParams = cliArguments
-          Common = dotnetOptions o.Common })
+          Common = dotnetOptions o.Common
+      })
     "./Build/NuGet.csproj"
 
   let toolPackages =

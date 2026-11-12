@@ -49,7 +49,8 @@ module Targets =
         LocalSource = true
         TypeFilter =
           [ @"System\."; "Microsoft" ]
-          @ (p.TypeFilter |> Seq.toList) }
+          @ (p.TypeFilter |> Seq.toList)
+    }
 
   let dotnetOptions (o: DotNet.Options) =
     match dotnetPath with
@@ -69,16 +70,19 @@ module Targets =
     { MSBuild.CliArguments.Create() with
         ConsoleLogParameters = []
         DistributedLoggers = None
-        DisableInternalBinLog = true }
+        DisableInternalBinLog = true
+    }
 
   let withWorkingDirectoryVM dir o =
     { dotnetOptions o with
         WorkingDirectory = Path.getFullName dir
-        Verbosity = Some DotNet.Verbosity.Minimal }
+        Verbosity = Some DotNet.Verbosity.Minimal
+    }
 
   let withWorkingDirectoryOnly dir o =
     { dotnetOptions o with
-        WorkingDirectory = Path.getFullName dir }
+        WorkingDirectory = Path.getFullName dir
+    }
 
   let withCLIArgs (o: Fake.DotNet.DotNet.TestOptions) =
     { o with MSBuildParams = cliArguments }
@@ -175,7 +179,8 @@ module Targets =
     DotNet.build
       (fun p ->
         { p with
-            Configuration = DotNet.BuildConfiguration.Release }
+            Configuration = DotNet.BuildConfiguration.Release
+        }
         |> buildWithCLIArguments)
       (Path.GetFullPath proj)
 
@@ -183,10 +188,10 @@ module Targets =
     DotNet.build
       (fun p ->
         { p with
-            Configuration = DotNet.BuildConfiguration.Debug }
+            Configuration = DotNet.BuildConfiguration.Debug
+        }
         |> buildWithCLIArguments)
       (Path.GetFullPath proj)
-
 
   let dumpSuppressions (report: String) =
     let x = XDocument.Load report
@@ -338,17 +343,21 @@ module Targets =
 
       let v' = Version.Value
 
-      [ "./_Generated/AssemblyVersion.fs"
-        "./_Generated/AssemblyVersion.cs" ]
+      [
+        "./_Generated/AssemblyVersion.fs"
+        "./_Generated/AssemblyVersion.cs"
+      ]
       |> List.iter (fun file ->
         AssemblyInfoFile.create
           file
-          [ AssemblyInfo.Product "altcode.dixon"
+          [
+            AssemblyInfo.Product "altcode.dixon"
             AssemblyInfo.Version v'
             AssemblyInfo.FileVersion v'
             AssemblyInfo.Company "Steve Gilham"
             AssemblyInfo.Trademark ""
-            AssemblyInfo.Copyright copy ]
+            AssemblyInfo.Copyright copy
+          ]
           (Some AssemblyInfoFileConfig.Default))
 
       let hack =
@@ -392,7 +401,8 @@ module Targets =
                   ConsoleLogParameters = []
                   DistributedLoggers = None
                   DisableInternalBinLog = true
-                  Properties = tmp.MSBuildParams.Properties }
+                  Properties = tmp.MSBuildParams.Properties
+              }
 
             { tmp with MSBuildParams = mparams })
           proj))
@@ -425,8 +435,10 @@ module Targets =
       let failOnIssuesFound (issuesFound: bool) =
         Assert.That(issuesFound, Is.False, "Lint issues were found")
 
-      [ !!"./**/*.fsproj" |> Seq.sortBy (Path.GetFileName)
-        !!"./Build/*.fsx" |> Seq.map Path.GetFullPath ]
+      [
+        !!"./**/*.fsproj" |> Seq.sortBy (Path.GetFileName)
+        !!"./Build/*.fsx" |> Seq.map Path.GetFullPath
+      ]
       |> Seq.concat
       |> Seq.map doLintAsync
       |> throttle
@@ -442,10 +454,17 @@ module Targets =
       let rules =
         Path.getFullName "./Build/common-rules.xml"
 
-      [ (rules, [ "_Binaries/AltCode.Dixon/Debug+x86/net472/AltCode.Dixon.dll" ])
+      [
+        (rules,
+         [
+           "_Binaries/AltCode.Dixon/Debug+x86/net472/AltCode.Dixon.dll"
+         ])
         (Path.getFullName "./Build/build-rules.xml",
-         [ Path.GetFullPath "./$Binaries/Build/Debug+AnyCPU/net10.0/Build.dll"
-           Path.GetFullPath "./$Binaries/Setup/Debug+AnyCPU/net10.0/Setup.dll" ]) ]
+         [
+           Path.GetFullPath "./$Binaries/Build/Debug+AnyCPU/net11.0/Build.dll"
+           Path.GetFullPath "./$Binaries/Setup/Debug+AnyCPU/net11.0/Setup.dll"
+         ])
+      ]
       |> Seq.iter (fun (ruleset, files) ->
         Gendarme.run
           { Gendarme.Params.Create() with
@@ -458,17 +477,20 @@ module Targets =
               LogKind = Gendarme.LogKind.Html
               Targets = files
               ToolType = ToolType.CreateLocalTool()
-              FailBuildOnDefect = true }))
+              FailBuildOnDefect = true
+          }))
 
   let FxCop =
     (fun _ -> // Needs debug because release is compiled --standalone which contaminates everything
 
       let nonFsharpRules =
-        [ "-Microsoft.Design#CA1006" // small namespaces
+        [
+          "-Microsoft.Design#CA1006" // small namespaces
           "-Microsoft.Design#CA1020" // nested classes being visible
           "-Microsoft.Design#CA1034" // nested classes being visible
           "-Microsoft.Design#CA1062" // null checks,  In F#!
-          "-Microsoft.Usage#CA2235" ]
+          "-Microsoft.Usage#CA2235"
+        ]
 
       Shell.copyFile // self-test
         ((Path.GetDirectoryName fxcop)
@@ -477,9 +499,13 @@ module Targets =
 
       Directory.ensure "./_Reports"
 
-      [ ([ Path.getFullName "_Binaries/AltCode.Dixon/Debug+x86/net472/AltCode.Dixon.dll" ],
+      [
+        ([
+          Path.getFullName "_Binaries/AltCode.Dixon/Debug+x86/net472/AltCode.Dixon.dll"
+         ],
          [],
-         nonFsharpRules) ]
+         nonFsharpRules)
+      ]
       |> Seq.iter (fun (files, types, ruleset) ->
         try
           files
@@ -493,7 +519,8 @@ module Targets =
                 Types = types
                 Rules = ruleset
                 FailOnError = FxCop.ErrorLevel.Warning
-                IgnoreGeneratedCode = true }
+                IgnoreGeneratedCode = true
+            }
         with _ ->
           dumpSuppressions "_Reports/FxCopReport.xml"
           reraise ()))
@@ -518,12 +545,14 @@ module Targets =
 
       try
         let recArgs =
-          [ "--noheader"
+          [
+            "--noheader"
             "--x86"
             "--work=."
             "--result=./_Reports/JustUnitTestReport.xml"
             Path.getFullName
-              "_Binaries/altcode.dixon.tests/Debug+AnyCPU/net472/altcode.dixon.tests.dll" ]
+              "_Binaries/altcode.dixon.tests/Debug+AnyCPU/net472/altcode.dixon.tests.dll"
+          ]
 
         Actions.Run (nunitConsole, ".", recArgs) "Recorder NUnit failed"
       with x ->
@@ -561,7 +590,8 @@ module Targets =
               OutputDirectories = outdir
               StrongNameKey = keyfile
               InPlace = false
-              Save = false }
+              Save = false
+          }
           |> AltCoverFilter
         )
         |> AltCoverCommand.Prepare
@@ -569,20 +599,23 @@ module Targets =
       { AltCoverCommand.Options.Create prep with
           ToolPath = altcover
           ToolType = frameworkAltcover
-          WorkingDirectory = "." }
+          WorkingDirectory = "."
+      }
       |> AltCoverCommand.run
 
       printfn "Unit test the instrumented code"
 
       try
         let baseArgs =
-          [ "--noheader"
+          [
+            "--noheader"
             "--work=."
             "--x86"
             "--result=./_Reports/UnitTestWithAltCoverReport.xml"
             // TODO generalise
             Path.getFullName
-              "_Binaries/altcode.dixon.tests/Debug+AnyCPU/net472/__UnitTestWithAltCover/altcode.dixon.tests.dll" ]
+              "_Binaries/altcode.dixon.tests/Debug+AnyCPU/net472/__UnitTestWithAltCover/altcode.dixon.tests.dll"
+          ]
 
         Actions.Run (nunitConsole, ".", baseArgs) "Main NUnit failed"
 
@@ -595,9 +628,12 @@ module Targets =
           { p with
               ToolType = ToolType.CreateLocalTool()
               ReportTypes =
-                [ ReportGenerator.ReportType.Html
-                  ReportGenerator.ReportType.XmlSummary ]
-              TargetDir = "_Reports/_UnitTestWithAltCover" })
+                [
+                  ReportGenerator.ReportType.Html
+                  ReportGenerator.ReportType.XmlSummary
+                ]
+              TargetDir = "_Reports/_UnitTestWithAltCover"
+          })
         [ altReport ]
 
       uncovered @"_Reports/_UnitTestWithAltCover/Summary.xml"
@@ -619,21 +655,25 @@ module Targets =
         Path.getFullName "_Binaries/FixCop/Release+x86/net472"
 
       let productFiles =
-        [ (productDir @@ "AltCode.Dixon.dll", Some "tools/Rules", None)
+        [
+          (productDir @@ "AltCode.Dixon.dll", Some "tools/Rules", None)
           (toolDir @@ "DixonCmd.exe", Some "tools", None)
           (toolDir @@ "FSharp.Core.dll", Some "tools", None)
           (toolDir @@ "netstandard.dll", Some "tools", None)
           (Path.getFullName "./LICENS*", Some "", None)
           (Path.getFullName "./Dixon_128.*g", Some "", None)
           (Path.getFullName "./README.md", Some "", None)
-          (Path.getFullName "./_Binaries/README.html", Some "", None) ]
+          (Path.getFullName "./_Binaries/README.html", Some "", None)
+        ]
 
-      [ (productFiles,
+      [
+        (productFiles,
          "_Packaging",
          "./Build/altcode.dixon.nuspec",
          "AltCode.Dixon",
          "FxCop extensions",
-         []) ]
+         [])
+      ]
       |> List.iter (fun (files, output, nuspec, project, description, dependencies) ->
         let outputPath = "./" + output
         let workingDir = "./_Binaries/" + output
@@ -660,7 +700,8 @@ module Targets =
                   ("./packages/"
                    + (packageVersion "NuGet.CommandLine")
                    + "/tools/NuGet.exe")
-                  |> Path.getFullName })
+                  |> Path.getFullName
+            })
           nuspec))
 
   //_Target "PrepareFrameworkBuild" ignore
@@ -727,11 +768,13 @@ module Targets =
                 ConsoleLogParameters = []
                 DistributedLoggers = None
                 DisableInternalBinLog = true
-                Properties = tmp.MSBuildParams.Properties }
+                Properties = tmp.MSBuildParams.Properties
+            }
 
           { tmp with
               Packages = [ "./packages" ]
-              MSBuildParams = mparams })
+              MSBuildParams = mparams
+          })
         proj
 
       let vname = Version.Value + badge
@@ -762,7 +805,8 @@ module Targets =
         { p with
             ToolType = ToolType.CreateLocalTool()
             ReportTypes = [ ReportGenerator.ReportType.Html ]
-            TargetDir = "_Reports/_BulkReport" }))
+            TargetDir = "_Reports/_BulkReport"
+        }))
 
   let All =
     (fun _ ->
@@ -781,13 +825,15 @@ module Targets =
           Actions.Run
             ("dotnet",
              ".",
-             [ "nuget"
+             [
+               "nuget"
                "push"
                f
                "--api-key"
                Environment.environVar "NUGET_API_TOKEN"
                "--source"
-               "https://api.nuget.org/v3/index.json" ])
+               "https://api.nuget.org/v3/index.json"
+             ])
             ("NuGet upload failed " + f)))
 
   let resetColours _ =
